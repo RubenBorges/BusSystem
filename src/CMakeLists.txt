@@ -19,8 +19,7 @@ target_compile_features(logserver PRIVATE cxx_std_23)
 
 # 3. Link the targets 
 # This automatically handles includes (-I) and library linkage (-l)
-target_link_libraries(logserver 
-    PRIVATE 
+target_link_libraries(logserver PRIVATE
         websocketpp::websocketpp
         Boost::system
         OpenSSL::SSL
