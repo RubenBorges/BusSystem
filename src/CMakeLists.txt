@@ -8,13 +8,14 @@ find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
 
 set(SYSSOURCES
-    Policies.hpp
+    main.cpp
     Components.cpp
     Components.hpp
-    eventType.hpp
+    Policies.hpp
+    Components.hpp
     bus.hpp
     DBServer.hpp
-    main.cpp
+    eventType.hpp
 )
 
 add_executable(DesignedSystem

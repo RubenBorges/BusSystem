@@ -1,6 +1,6 @@
 #pragma once
 #include <eventType.hpp>
-#include <bus.hpp>
+#include <Bus.hpp>
 #include <Policies.hpp>
 #include <string>
 // DataBus stores heterogeneous event subscribers and request providers by type.

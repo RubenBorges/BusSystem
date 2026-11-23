@@ -28,7 +28,6 @@
 #include <any>
 #include <stdexcept>
 #include <typeindex>
-#include <eventType.hpp>
 #include <Policies.hpp>
 //--------------------------------
 
