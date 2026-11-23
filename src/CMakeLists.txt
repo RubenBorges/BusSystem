@@ -21,6 +21,8 @@ target_include_directories(DesignedSystem PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Components
     ${CMAKE_CURRENT_SOURCE_DIR}/Policies
+    ${CMAKE_CURRENT_SOURCE_DIR}/misc
+
     ) 
 # 3. Link the targets 
 # This automatically handles includes (-I) and library linkage (-l)

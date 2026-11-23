@@ -11,6 +11,7 @@
 
 #include <Components.hpp>
 #include <pqxx/pqxx>
+#include <UtilitiesQL.hpp>
 
 #ifndef MAXCOLUMNS__
     #define MAXCOLUMNS__ 64
@@ -158,3 +159,4 @@ private:
         }
     }
 };
+
