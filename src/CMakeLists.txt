@@ -10,6 +10,9 @@ find_package(Threads REQUIRED)
 set(SYSSOURCES
     logserver.cpp
     logserver.hpp
+    eventType.hpp
+    bus.cpp
+    bus.hpp
     main.cpp
 )
 
