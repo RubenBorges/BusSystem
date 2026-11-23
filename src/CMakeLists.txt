@@ -8,11 +8,12 @@ find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
 
 set(SYSSOURCES
-    logserver.cpp
-    logserver.hpp
+    Policies.hpp
+    Components.cpp
+    Components.hpp
     eventType.hpp
-    bus.cpp
     bus.hpp
+    DBServer.hpp
     main.cpp
 )
 

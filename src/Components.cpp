@@ -1,5 +1,6 @@
-#include <bus.hpp>
 #include <eventType.hpp>
+#include <iostream>
+#include <Components.hpp>
 
     void SensorComponent::start()  {
         started_ = true;
