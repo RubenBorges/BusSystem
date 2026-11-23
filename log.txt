@@ -12,3 +12,50 @@ Unsubscribed from log messages.
 
 Unsubscribed from log messages.
 
+Subscribed to log messages.
+
+Subscribed to log messages.
+
+Subscribed to log messages.
+
+Unsubscribed from log messages.
+
+Unsubscribed from log messages.
+
+Unsubscribed from log messages.
+
+Unsubscribed from log messages.
+
+Subscribed to log messages.
+Subscribed to log messages.
+Subscribed to log messages.
+Unsubscribed from log messages.
+Subscribed to log messages.
+Subscribed to log messages.
+Subscribed to log messages.
+Unsubscribed from log messages.
+T2026-11-23 19:58:44.068513446 - Subscribed to log messages.
+T2026-11-23 19:58:44.068576201 - Subscribed to log messages.
+T2026-11-23 19:58:44.068583386 - Subscribed to log messages.
+T2026-11-23 19:58:44.068649988 - Unsubscribed from log messages.T 2026-11-23 20:00:07.554440124 : "Subscribed to log messages." 
+T 2026-11-23 20:00:07.554474712 : "Subscribed to log messages." 
+T 2026-11-23 20:00:07.554478668 : "Subscribed to log messages." 
+T 2026-11-23 20:00:07.554527299 : "Unsubscribed from log messages."T 20:01:18.374397609 : "Subscribed to log messages." 
+T 20:01:18.374431628 : "Subscribed to log messages." 
+T 20:01:18.374435425 : "Subscribed to log messages." 
+T 20:01:18.374475163 : "Unsubscribed from log messages."T 20:04:40.163490917 : Subscribed: log-message-reader-1 
+T 20:04:40.163521875 : Subscribed: log-message-reader-2 
+T 20:04:40.163526607 : Subscribed: log-message-reader-3 
+T 20:04:40.163565855 : Unsubscribed: log-message-reader-2 
+T 20:04:52.058049150 : Subscribed: log-message-reader-1 
+T 20:04:52.058091594 : Subscribed: log-message-reader-2 
+T 20:04:52.058096558 : Subscribed: log-message-reader-3 
+T 20:04:52.058140795 : Unsubscribed: log-message-reader-2 
+T 20:10:25.227969871 : Subscribed: log-message-reader-1 
+T 20:10:25.227997534 : Subscribed: log-message-reader-2 
+T 20:10:25.228002107 : Subscribed: log-message-reader-3 
+T 20:10:25.228046738 : Unsubscribed: log-message-reader-2 
+T 20:11:17.902661106 : Subscribed: log-message-reader-1 
+T 20:11:17.902688941 : Subscribed: log-message-reader-2 
+T 20:11:17.902693257 : Subscribed: log-message-reader-3 
+T 20:11:17.902726168 : Unsubscribed: log-message-reader-2 
