@@ -2,13 +2,15 @@
 #include <eventType.hpp>
 #include <Bus.hpp>
 #include <Components.hpp>
+#include <DatabaseComponent.hpp>
+
 int main() {
     // The bus routes events and requests between independent components.
     DataBus bus;
     SensorComponent sensor(bus);
     DiagnosticsComponent diagnostics(bus);
     DashboardComponent dashboard(bus);
-
+    DBComponent dbc(bus, "dbname=mydb user=myuser password=mypass hostaddr=127.0.0.1 port=5432");
     // Start each component to install its subscriptions and providers.
     sensor.start();
     diagnostics.start();
