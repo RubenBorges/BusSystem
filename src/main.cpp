@@ -351,8 +351,7 @@ NotifyEvent decodeNotifyEvent(std::span<const std::uint8_t> bytes) {
         .now = std::chrono::system_clock::time_point{Duration{ticks}},
         .message = std::move(message)
     };
-}
-void demonstrateGraphBridge() {
+}void demonstrateGraphBridge() {
     std::println("=== 3b. GraphBridgeComponent Cross-Bus Gateway ===");
 
     DataBus systemABus;
@@ -365,9 +364,17 @@ void demonstrateGraphBridge() {
     // Link the two gateways over a bidirectional in-memory Channel
     GraphBridgeComponent::bridgeInMemory(bridgeA, bridgeB);
 
-    // Register NotifyEvent codecs on both gateways
-    bridgeA.bridgeEvent<NotifyEvent>(encodeNotifyEvent, decodeNotifyEvent);
-    bridgeB.bridgeEvent<NotifyEvent>(encodeNotifyEvent, decodeNotifyEvent);
+    // Reuse NotifyingComponent's portable big-endian codec on both gateways
+    auto decodeNotify = [](std::span<const std::uint8_t> bytes) -> NotifyEvent {
+        auto decoded = NotifyingComponent::decodePayload(bytes);
+        if (!decoded) {
+            throw std::runtime_error("Invalid NotifyEvent magic header in bridged frame");
+        }
+        return std::move(*decoded);
+    };
+
+    bridgeA.bridgeEvent<NotifyEvent>(NotifyingComponent::encode, decodeNotify);
+    bridgeB.bridgeEvent<NotifyEvent>(NotifyingComponent::encode, decodeNotify);
 
     // Activate both gateways so their DataBus subscriptions go live
     bridgeA.start();
@@ -378,7 +385,6 @@ void demonstrateGraphBridge() {
     std::size_t totalPublishesOnA{0};
     std::size_t totalPublishesOnB{0};
 
-    // Track total publishes on each local bus (local origin + remote arrivals, zero echo loops)
     systemABus.subscribe<NotifyEvent>("system-a-counter", [&](const NotifyEvent&) {
         ++totalPublishesOnA;
     });
@@ -386,10 +392,9 @@ void demonstrateGraphBridge() {
         ++totalPublishesOnB;
     });
 
-    // System B listener: logs incoming messages and replies once to ping messages
     systemBBus.subscribe<NotifyEvent>("system-b-listener", [&](const NotifyEvent& ev) {
         if (ev.message.starts_with("[From B]")) {
-            return; // Ignore System B's own outbound messages
+            return;
         }
         ++receivedOnB;
         std::println("[System B] Received bridged NotifyEvent: '{}'", ev.message);
@@ -403,30 +408,26 @@ void demonstrateGraphBridge() {
         }
     });
 
-    // System A listener: logs incoming messages from System B
     systemABus.subscribe<NotifyEvent>("system-a-listener", [&](const NotifyEvent& ev) {
         if (ev.message.starts_with("[From A]")) {
-            return; // Ignore System A's own outbound messages
+            return;
         }
         ++receivedOnA;
         std::println("[System A] Received bridged NotifyEvent: '{}'", ev.message);
     });
 
-    // 1. System A -> System B (triggers an automatic reply from System B -> System A)
     systemABus.publish(NotifyEvent{
         .type = NotifyEvent::Type::Sys,
         .now = std::chrono::system_clock::now(),
         .message = "[From A] Ping"
     });
 
-    // 2. Independent unsolicited message from System B -> System A
     systemBBus.publish(NotifyEvent{
         .type = NotifyEvent::Type::Note,
         .now = std::chrono::system_clock::now(),
         .message = "[From B] Telemetry heartbeat"
     });
 
-    // 3. Second message from System A -> System B
     systemABus.publish(NotifyEvent{
         .type = NotifyEvent::Type::Sys,
         .now = std::chrono::system_clock::now(),
@@ -436,15 +437,9 @@ void demonstrateGraphBridge() {
     bridgeA.poll();
     bridgeB.poll();
 
-    // Expected:
-    //   receivedOnB = 2 ("[From A] Ping", "[From A] Configuration sync complete")
-    //   receivedOnA = 2 ("[From B] Pong reply", "[From B] Telemetry heartbeat")
-    //   totalPublishesOnA = 4 (2 local + 2 bridged from B)
-    //   totalPublishesOnB = 4 (2 local + 2 bridged from A)
     std::println("Bidirectional check: B received={} (bus total={}), A received={} (bus total={})",
                  receivedOnB, totalPublishesOnB, receivedOnA, totalPublishesOnA);
 
-    // Clean up subscriptions and stop gateways before local objects go out of scope
     systemABus.unsubscribe<NotifyEvent>("system-a-listener");
     systemBBus.unsubscribe<NotifyEvent>("system-b-listener");
     systemABus.unsubscribe<NotifyEvent>("system-a-counter");
@@ -454,7 +449,6 @@ void demonstrateGraphBridge() {
     bridgeB.stop();
     bridgeA.stop();
 }
-
 
 } // namespace
 
