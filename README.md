@@ -1,90 +1,134 @@
-No photo, just the doggo
+# DesignedSystem
+
+A C++26 modular component demo with a local data bus, database, logging and
+terminal notification components, plus a simulated Graph notification demo.
+
+No Program Photo, just the Doggo
 
 <p align="center">
   <img width="649" height="546" alt="image" src="https://github.com/user-attachments/assets/4791ab09-f843-401c-8113-18f3a1b771e1" />
 </p>
 
+## Linux prerequisites
 
-## Remote process connections WITH Distributed Message Graph
+The project is built and tested on Linux with GCC 16.2.1, CMake 3.30 or newer,
+and Ninja. The compiler and its standard library must support C++26 modules and
+`import std;`; many distributions' default GCC versions may be too old.
 
-The project provides a TLS-protected WebSocket transport for graph frames. It is
-a transport adapter, not an HTTP route or listener: the application accepts a
-TCP socket and passes it to `WebSocketConnection::accept`, or opens an outgoing
-connection with `WebSocketConnection::connect`. Each connection must use
-mutual TLS. Configure the TLS context with the trusted CA and the local
-certificate/private key before connecting.
+Required development tools and libraries:
 
-```cpp
-#include <boost/asio/ssl/context.hpp>
+- GCC/G++ with C++26 and `import std;` support
+- CMake 3.30+
+- Ninja
+- Bash and `pkg-config`
+- Boost headers and Boost.System (Asio and Beast)
+- websocketpp
+- OpenSSL
+- PostgreSQL client libraries: libpq and libpqxx
+- POSIX threads
 
-import std;
-import Graph;
+On Debian/Ubuntu, install the packaged dependencies with:
 
-namespace ssl = boost::asio::ssl;
-
-Process process(1);
-constexpr ID remoteID = 2;
-auto tls = std::make_shared<ssl::context>(ssl::context::tls_client);
-tls->set_default_verify_paths();
-tls->load_verify_file("nodes-ca.pem");
-tls->use_certificate_chain_file("node-cert.pem");
-tls->use_private_key_file("node-key.pem", ssl::context::pem);
-
-auto connection = WebSocketConnection::connect(
-    "graph.example.net", "9443", "/graph", tls
-);
-process.registerChannel(remoteID, WebSocketChannel(connection));
-process.addChild(remoteID); // for a remote child
-process.position(remoteID, {{process.identity, remoteID}});
+```sh
+sudo apt update
+sudo apt install build-essential cmake ninja-build pkg-config \
+  libboost-dev libboost-system-dev libwebsocketpp-dev libssl-dev \
+  libpq-dev libpqxx-dev
 ```
 
-For an accepted connection, configure a `tls_server` context with the server
-certificate/key and the CA that issued client certificates. Accept a TCP socket
-using a shared `boost::asio::io_context`, then pass both to
-`WebSocketConnection::accept(ioContext, std::move(socket), tls)`:
+Install or select a sufficiently recent GCC separately if the distribution's
+`build-essential` package does not provide the required C++26 standard library.
+For example, if `g++-16` is installed and provides `import std`, build with
+`CXX=g++-16 ./autobuild.sh`.
 
-```cpp
-auto ioContext = std::make_shared<boost::asio::io_context>();
-boost::asio::ip::tcp::acceptor listener(
-    *ioContext,
-    {boost::asio::ip::tcp::v4(), 9443}
-);
-boost::asio::ip::tcp::socket socket(*ioContext);
-listener.accept(socket);
-auto connection = WebSocketConnection::accept(
-    ioContext, std::move(socket), serverTls
-);
+The current CMake configuration expects libpqxx at
+`/usr/lib/libpqxx.so` with headers under `/usr/include`. Some distributions use
+a multiarch library directory instead; in that case, adjust the imported
+`custom_pqxx` location in `src/CMakeLists.txt`.
+
+## Build on Linux
+
+Run the build script from the repository root:
+
+```sh
+./autobuild.sh
 ```
 
-The `io_context` must remain available while accepting more sockets; the connection
-retains shared ownership of it. The adapter verifies the peer certificate;
-applications remain responsible for mapping an authenticated certificate to an
-authorized process ID.
+The script configures the `dev` CMake workflow, builds with Ninja, and installs
+the executable into `dist/DesignedSystem`. It removes the existing `dist/`
+directory before building, so do not keep unrelated files there.
 
-On the remote child, call `setParent(parentID)` and register the accepted
-connection as its parent channel. Both sides should call `pollChannels()`
-regularly to deliver received frames to `Process`. A process can announce a
-position with `position(id, neighbours)`. The resulting `POSITION` frame is
-forwarded through connected channels when a process first learns the node or a
-new edge; repeated announcements do not circulate indefinitely. The payload
-encodes a 32-bit edge count followed by source/destination ID pairs in network
-byte order.
+To run the build steps manually:
 
-To broadcast terminal notifications, construct a `NotifyingComponent` with
-both its `DataBus` and a `Process`. A root process transmits each local
-`NotifyEvent` as a versioned Graph data wave; receiving components print it
-locally without rebroadcasting it. Start the component on each process and call
-its `pollGraph()` regularly to receive notifications. Non-root processes still
-print local notifications, but only the root originates graph-wide waves.
+```sh
+cmake --preset linux-dev
+cmake --build --preset dev-build
+cmake --build --preset dev-install
+```
 
-Connections are not restricted to a central root: any process can open or
-accept a WebSocket and use it as a channel to a remote child. To join two
-existing trees, the application can connect the coordinator processes and
-explicitly attach one under the other using the existing parent/child APIs.
-Each process still has at most one parent, so this creates a tree rather than a
-general mesh. There is no node-ID registration handshake or automatic
-certificate-to-ID binding yet.
+The uninstalled executable is at `build/linux-dev/src/DesignedSystem`.
 
-The adapter uses Boost.Beast/Asio for WebSockets and OpenSSL for TLS. Graph
-frames are sent as binary WebSocket messages using the same checksummed,
-network-byte-order frame format as the raw socket transport.
+## Usage
+
+The sample program starts the logging and notification components, demonstrates
+a Graph notification between an in-memory root and peer, then connects to
+PostgreSQL, creates the `designed_system_demo` table if needed, and inserts a
+sample notification.
+
+Run the installed executable:
+
+```sh
+./dist/DesignedSystem
+```
+
+The default PostgreSQL connection string is:
+
+```text
+dbname=postgres user=postgres hostaddr=127.0.0.1 port=5432
+```
+
+Set `DESIGNED_SYSTEM_DSN` to use another database; no prompt is shown:
+
+```sh
+export DESIGNED_SYSTEM_DSN="host=127.0.0.1 port=5432 dbname=mydb user=myuser"
+./dist/DesignedSystem
+```
+
+The selected database must be running and the configured user must be allowed
+to create the demo table and insert rows. The logger writes to
+`designed-system.log` in the current working directory.
+
+### About the Graph demo
+
+The Graph example in `main()` uses `PointerChannel` to connect two `Process`
+objects in the same process. The sample notification is printed at the root
+and simulated peer. This is an in-memory demonstration: it does not open a
+network connection or require TLS certificates. The Graph module also contains
+WebSocket/TLS transport APIs for applications that configure remote processes
+and their channels.
+
+## Planned distributed architecture
+
+The intended design connects two independent systems through a GraphComponent
+on each side:
+
+```mermaid
+flowchart LR
+  subgraph A["System A"]
+    ComponentsA["Components"] <--> BusA["DataBus"]
+    BusA <--> BridgeA["GraphComponent A"]
+  end
+
+  subgraph B["System B"]
+    BridgeB["GraphComponent B"] <--> BusB["DataBus"]
+    BusB <--> ComponentsB["Components"]
+  end
+
+  BridgeA <--> BridgeB
+```
+
+Each GraphComponent will adapt selected local DataBus events into Graph
+messages, then decode incoming messages and publish them on its own DataBus.
+Received messages should not be broadcast back onto Graph, which prevents
+echo loops. This is the planned architecture; the current executable only
+demonstrates the in-process Graph notification path described above.
