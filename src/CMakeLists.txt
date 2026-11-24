@@ -45,8 +45,8 @@ target_sources(DesignedSystem
             modules/Policies/Policies.cppm
             modules/MessageBus/MessageBus.cppm
             modules/MessageBus/MultiMessageBus.cppm
-            modules/UtilitiesQL.cppm
-            modules/pqxx.cppm
+            modules/Database/UtilitiesQL.cppm
+            modules/Database/pqxx.cppm
             modules/Graph/Graph.cppm
 )
 
@@ -60,6 +60,6 @@ Threads::Threads
 custom_pqxx
 )
 
-# target_include_directories(DesignedSystem PRIVATE
-#     ${CMAKE_CURRENT_SOURCE_DIR}/include
-# )
+target_include_directories(DesignedSystem PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
