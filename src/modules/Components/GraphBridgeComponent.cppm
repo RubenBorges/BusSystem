@@ -10,7 +10,7 @@
 *  \\ComponentB\\<===>\\==Bus=\\<==>\\GraphBridgeComp1\\<<=Channel=>>\\GraphBridgeComp2\\<==>\\==Bus=\\<===>\\ComponentY\\
 *  \\ComponentA\\ ==> \\===1==\\    \\================\\ >>       >> \\================\\    \\==2===\\ <== \\ComponentX\\
 *  \\==========\\     \\======\\                                                             \\======\\     \\==========\\        
-*        1)               2)                3)                4)
+*        1)               2)                3)                4)              3)                  2)              1)
 *
  *  1) Components access the local DataBus as subscribers and publishers.
  *  2) DataBus facilitates local data/message sharing and cross-component execution.
