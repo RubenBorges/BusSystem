@@ -53,17 +53,16 @@ target_sources(DesignedSystem
             modules/Graph/Graph.cppm
 )
 
-target_include_directories(DesignedSystem PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/modules
-    ${CMAKE_CURRENT_SOURCE_DIR}/misc
-)
 
 target_link_libraries(DesignedSystem PRIVATE
-    websocketpp::websocketpp
-    Boost::system
-    OpenSSL::SSL
-    OpenSSL::Crypto
-    Threads::Threads
-    custom_pqxx
+websocketpp::websocketpp
+Boost::system
+OpenSSL::SSL
+OpenSSL::Crypto
+Threads::Threads
+custom_pqxx
 )
+
+# target_include_directories(DesignedSystem PRIVATE
+#     ${CMAKE_CURRENT_SOURCE_DIR}/include
+# )
