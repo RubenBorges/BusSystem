@@ -28,6 +28,7 @@ export enum class FrameKind : std::uint8_t {
 export struct MessageHeader {
     std::uint32_t magic;
     std::uint32_t waveId;
+    std::uint32_t senderId;      // Identifies the transmitting Process node
     std::uint8_t kind;
     std::uint32_t payloadLength;
 };
@@ -40,6 +41,7 @@ export struct GraphFrame {
     WaveID waveID;
     Message payload;
     FrameKind kind{FrameKind::Data};
+    ID senderID{0};              // Defaulted so existing 3-field initializers still compile
 };
 
 export class Wire {
@@ -122,7 +124,8 @@ public:
                 processNode.receive(GraphFrame{
                     ntohl(header.waveId),
                     std::move(payload),
-                    static_cast<FrameKind>(header.kind)
+                    static_cast<FrameKind>(header.kind),
+                    ntohl(header.senderId)
                 });
                 receivedFrame = true;
             }
@@ -255,9 +258,11 @@ public:
 private:
     std::optional<ID> parent;
     std::vector<ID> children;
+    std::vector<ID> peers;                                   // Remote root peers (parentNode <-> parentNode)
     std::vector<ID> knownProcesses;
     std::vector<Edge> knownChannels;
     std::unordered_map<ID, Channel> activeChannels;
+    std::unordered_map<WaveID, ID> waveParent;               // Dynamic upstream return path per WaveID
     std::unordered_map<WaveID, std::size_t> expectedMessagesByWave;
     std::set<WaveID> activeWaves;
     std::set<WaveID> completedWaves;
@@ -270,17 +275,19 @@ public:
     ~Process() = default;
 
     [[nodiscard]] bool isRoot() const noexcept { return !parent.has_value(); }
+    [[nodiscard]] bool hasPeers() const noexcept { return !peers.empty(); }
     void setDataHandler(DataHandler handler);
     void start(GraphFrame frame);
     void pollChannels();
     bool isWaveCompleted(WaveID waveID) const;
     bool isWaveCleaned(WaveID waveID) const;
     bool isProcessKnown(ID id) const;
-    void position(ID id, const std::vector<Edge>& neighbours); //Altered neighbours parameter from value to const&
+    void position(ID id, const std::vector<Edge>& neighbours);
     void receive(GraphFrame frame);
     void registerChannel(ID neighbourID, Channel channelImplementation);
     void addChild(ID childID);
     void addChild(Process* child);
+    void addPeer(ID peerID);                                 // Links another root Process as a peer gateway
     void setParent(ID parentID);
     std::uint8_t getActiveWaves() { return static_cast<std::uint8_t>(activeWaves.size()); }
     std::uint8_t getCompletedWaves() { return static_cast<std::uint8_t>(completedWaves.size()); }

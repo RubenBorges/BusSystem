@@ -4,10 +4,12 @@ import DatabaseComponent;
 import DataBus;
 import EventType;
 import Graph;
+import GraphBridgeComponent; 
 import LoggingComponent;
 import NotifyingComponent;
 import TaskPolicies;
 import Pqxx;
+
 namespace {
 
 constexpr std::string_view DemoTable{"sensor_readings"};
@@ -288,6 +290,171 @@ void demonstrateDatabaseComponent(DataBus& bus, const std::string& dsn) {
 
     db.stop();
 }
+Message encodeNotifyEvent(const NotifyEvent& event) {
+    Message out;
+    const auto typeRaw = static_cast<std::uint8_t>(event.type);
+    const auto ticks = event.now.time_since_epoch().count();
+    const auto len = static_cast<std::uint32_t>(event.message.size());
+
+    out.resize(sizeof(typeRaw) + sizeof(ticks) + sizeof(len) + len);
+    std::size_t offset = 0;
+
+    std::memcpy(out.data() + offset, &typeRaw, sizeof(typeRaw));
+    offset += sizeof(typeRaw);
+
+    std::memcpy(out.data() + offset, &ticks, sizeof(ticks));
+    offset += sizeof(ticks);
+
+    std::memcpy(out.data() + offset, &len, sizeof(len));
+    offset += sizeof(len);
+
+    if (len > 0) {
+        std::memcpy(out.data() + offset, event.message.data(), len);
+    }
+    return out;
+}
+
+NotifyEvent decodeNotifyEvent(std::span<const std::uint8_t> bytes) {
+    using Duration = decltype(NotifyEvent::now)::duration;
+    using Rep = Duration::rep;
+
+    constexpr std::size_t headerSize =
+        sizeof(std::uint8_t) + sizeof(Rep) + sizeof(std::uint32_t);
+    if (bytes.size() < headerSize) {
+        throw std::runtime_error("Corrupted NotifyEvent payload");
+    }
+
+    std::size_t offset = 0;
+    std::uint8_t typeRaw{};
+    std::memcpy(&typeRaw, bytes.data() + offset, sizeof(typeRaw));
+    offset += sizeof(typeRaw);
+
+    Rep ticks{};
+    std::memcpy(&ticks, bytes.data() + offset, sizeof(ticks));
+    offset += sizeof(ticks);
+
+    std::uint32_t len{};
+    std::memcpy(&len, bytes.data() + offset, sizeof(len));
+    offset += sizeof(len);
+
+    if (bytes.size() < offset + len) {
+        throw std::runtime_error("Truncated NotifyEvent message string");
+    }
+
+    std::string message(
+        reinterpret_cast<const char*>(bytes.data() + offset),
+        len
+    );
+
+    return NotifyEvent{
+        .type = static_cast<NotifyEvent::Type>(typeRaw),
+        .now = std::chrono::system_clock::time_point{Duration{ticks}},
+        .message = std::move(message)
+    };
+}
+void demonstrateGraphBridge() {
+    std::println("=== 3b. GraphBridgeComponent Cross-Bus Gateway ===");
+
+    DataBus systemABus;
+    DataBus systemBBus;
+
+    // Distinct node IDs (200, 201) and server IDs (1, 2) prevent ID/WaveID collisions
+    GraphBridgeComponent bridgeA{systemABus, "bridge-A", /*localNodeId=*/200, /*serverId=*/1};
+    GraphBridgeComponent bridgeB{systemBBus, "bridge-B", /*localNodeId=*/201, /*serverId=*/2};
+
+    // Link the two gateways over a bidirectional in-memory Channel
+    GraphBridgeComponent::bridgeInMemory(bridgeA, bridgeB);
+
+    // Register NotifyEvent codecs on both gateways
+    bridgeA.bridgeEvent<NotifyEvent>(encodeNotifyEvent, decodeNotifyEvent);
+    bridgeB.bridgeEvent<NotifyEvent>(encodeNotifyEvent, decodeNotifyEvent);
+
+    // Activate both gateways so their DataBus subscriptions go live
+    bridgeA.start();
+    bridgeB.start();
+
+    std::size_t receivedOnB{0};
+    std::size_t receivedOnA{0};
+    std::size_t totalPublishesOnA{0};
+    std::size_t totalPublishesOnB{0};
+
+    // Track total publishes on each local bus (local origin + remote arrivals, zero echo loops)
+    systemABus.subscribe<NotifyEvent>("system-a-counter", [&](const NotifyEvent&) {
+        ++totalPublishesOnA;
+    });
+    systemBBus.subscribe<NotifyEvent>("system-b-counter", [&](const NotifyEvent&) {
+        ++totalPublishesOnB;
+    });
+
+    // System B listener: logs incoming messages and replies once to ping messages
+    systemBBus.subscribe<NotifyEvent>("system-b-listener", [&](const NotifyEvent& ev) {
+        if (ev.message.starts_with("[From B]")) {
+            return; // Ignore System B's own outbound messages
+        }
+        ++receivedOnB;
+        std::println("[System B] Received bridged NotifyEvent: '{}'", ev.message);
+
+        if (ev.message == "[From A] Ping") {
+            systemBBus.publish(NotifyEvent{
+                .type = NotifyEvent::Type::Note,
+                .now = std::chrono::system_clock::now(),
+                .message = "[From B] Pong reply"
+            });
+        }
+    });
+
+    // System A listener: logs incoming messages from System B
+    systemABus.subscribe<NotifyEvent>("system-a-listener", [&](const NotifyEvent& ev) {
+        if (ev.message.starts_with("[From A]")) {
+            return; // Ignore System A's own outbound messages
+        }
+        ++receivedOnA;
+        std::println("[System A] Received bridged NotifyEvent: '{}'", ev.message);
+    });
+
+    // 1. System A -> System B (triggers an automatic reply from System B -> System A)
+    systemABus.publish(NotifyEvent{
+        .type = NotifyEvent::Type::Sys,
+        .now = std::chrono::system_clock::now(),
+        .message = "[From A] Ping"
+    });
+
+    // 2. Independent unsolicited message from System B -> System A
+    systemBBus.publish(NotifyEvent{
+        .type = NotifyEvent::Type::Note,
+        .now = std::chrono::system_clock::now(),
+        .message = "[From B] Telemetry heartbeat"
+    });
+
+    // 3. Second message from System A -> System B
+    systemABus.publish(NotifyEvent{
+        .type = NotifyEvent::Type::Sys,
+        .now = std::chrono::system_clock::now(),
+        .message = "[From A] Configuration sync complete"
+    });
+
+    bridgeA.poll();
+    bridgeB.poll();
+
+    // Expected:
+    //   receivedOnB = 2 ("[From A] Ping", "[From A] Configuration sync complete")
+    //   receivedOnA = 2 ("[From B] Pong reply", "[From B] Telemetry heartbeat")
+    //   totalPublishesOnA = 4 (2 local + 2 bridged from B)
+    //   totalPublishesOnB = 4 (2 local + 2 bridged from A)
+    std::println("Bidirectional check: B received={} (bus total={}), A received={} (bus total={})",
+                 receivedOnB, totalPublishesOnB, receivedOnA, totalPublishesOnA);
+
+    // Clean up subscriptions and stop gateways before local objects go out of scope
+    systemABus.unsubscribe<NotifyEvent>("system-a-listener");
+    systemBBus.unsubscribe<NotifyEvent>("system-b-listener");
+    systemABus.unsubscribe<NotifyEvent>("system-a-counter");
+    systemBBus.unsubscribe<NotifyEvent>("system-b-counter");
+    bridgeB.unbridgeEvent<NotifyEvent>();
+    bridgeA.unbridgeEvent<NotifyEvent>();
+    bridgeB.stop();
+    bridgeA.stop();
+}
+
 
 } // namespace
 
@@ -345,5 +512,8 @@ int main() {
         logger.stop();
     }
 
+    std::println("Beginning GraphNodeComponent Demo!");
+
+    demonstrateGraphBridge();
     return 0;
 }
