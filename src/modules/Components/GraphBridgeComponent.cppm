@@ -1,3 +1,16 @@
+/*
+* This GraphBridgeComponent is used to facilitate communication between two remote Databus processes.
+* Two seperate GraphBridgeComponents are be linked together via a shared, bidirectional Process::Channel
+* they can both use to propogate data and execution across the Databus processes.
+* 
+* Connective Architecture should approach the following intended design:
+*  \\==========\\     \\======\\                                                           \\======\\     \\==========\\                         \\==========\\
+*  \\ComponentC\\<=>  \\=Data=\\    \\================\\           \\================\\    \\=Data=\\  <=>\\ComponentZ\\
+*  \\ComponentB\\<===>\\==Bus=\\<==>\\GraphBridgeComp1\\<=Channel=>\\GraphBridgeComp2\\<==>\\==Bus=\\<===>\\ComponentY\\
+*  \\ComponentA\\<=>  \\===1==\\    \\================\\           \\================\\    \\==2===\\  <=>\\ComponentX\\
+*  \\==========\\     \\======\\                                                           \\======\\     \\==========\\        
+*/
+
 export module GraphBridgeComponent;
 
 import std;
