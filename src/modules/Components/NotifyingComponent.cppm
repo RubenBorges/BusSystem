@@ -7,17 +7,17 @@ import Graph;
 
 export class NotifyingComponent final : public Component<> {
 public:
-    explicit NotifyingComponent(DataBus& bus) : bus_(bus) {}
+    explicit NotifyingComponent(DataBus& bus) : Component<>(bus) {}
 
     NotifyingComponent(DataBus& bus, Process& graphProcess)
-        : bus_(bus), graphProcess_(&graphProcess) {}
+        : Component<>(bus), graphProcess_(&graphProcess) {}
 
     void start() override {
         if (running_) {
             return;
         }
 
-        bus_.subscribe<NotifyEvent>(
+        this->bus_.template subscribe<NotifyEvent>(
             SubscriptionId,
             [this](const NotifyEvent& event) { notify(event); });
 
@@ -28,7 +28,7 @@ public:
             }
             running_ = true;
         } catch (...) {
-            bus_.unsubscribe<NotifyEvent>(SubscriptionId);
+            this->bus_.template unsubscribe<NotifyEvent>(SubscriptionId);
             throw;
         }
     }
@@ -44,7 +44,7 @@ public:
             return;
         }
 
-        bus_.unsubscribe<NotifyEvent>(SubscriptionId);
+        this->bus_.template unsubscribe<NotifyEvent>(SubscriptionId);
         if (graphProcess_) {
             std::lock_guard lock(graphMutex_);
             graphProcess_->setDataHandler({});
@@ -224,7 +224,6 @@ private:
         }
     }
 
-    DataBus& bus_;
     Process* graphProcess_{nullptr};
     std::mutex outputMutex_;
     std::mutex graphMutex_;

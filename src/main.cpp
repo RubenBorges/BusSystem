@@ -8,6 +8,11 @@ import Graph;
 import LoggingComponent;
 import NotifyingComponent;
 import Pqxx;
+import TaskPolicies;
+
+static_assert(std::derived_from<SensorComponent<LocalThreadPolicy>, IComponent>);
+static_assert(std::derived_from<SensorComponent<MultiThreadPolicy>, IComponent>);
+static_assert(std::derived_from<SensorComponent<AsyncPolicy>, IComponent>);
 
 namespace {
 
@@ -33,9 +38,9 @@ void ensureDemoTable(std::string_view dsn) {
     transaction.commit();
 }
 
-int insertDemoNotification(DatabaseComponent& database, const NotifyEvent& event) {
+int insertDemoNotification(DatabaseComponent<>& database, const NotifyEvent& event) {
     database.setTableName(DemoTable);
-    database.addArgs({"type", "message"});
+    database.addArgs({"name", "message"});
     database.addVals(static_cast<int>(event.type), event.message);
     database.buildTransactionFromArgsandVals();
 
@@ -58,6 +63,17 @@ std::string_view statusName(DatabaseTx::Status status) {
 //THIS IS JUST A SIMULATED DEMO TO TEST FUNCTIONALITY WHILE BUILDING!
 int main() {
     DataBus bus;
+    std::vector<std::unique_ptr<IComponent>> policyComponents;
+    policyComponents.push_back(
+        std::make_unique<SensorComponent<LocalThreadPolicy>>(bus, "local"));
+    policyComponents.push_back(
+        std::make_unique<SensorComponent<MultiThreadPolicy>>(bus, "thread"));
+    policyComponents.push_back(
+        std::make_unique<SensorComponent<AsyncPolicy>>(bus, "async"));
+    for (const auto& component : policyComponents) {
+        component->start();
+    }
+
     LoggingComponent logger(bus, "designed-system.log");
     NotifyingComponent notifier(bus);
     const std::string dsn = connectionString();
