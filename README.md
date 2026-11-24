@@ -1,7 +1,9 @@
 # DesignedSystem
 
+**ACTIVE DEVELOPMENT**
+
 A C++26 modular component demo with a local data bus, database, logging and
-terminal notification components, plus a simulated Graph notification demo.
+terminal notification components, plus a simulated Graph notification demo. 
 
 No Program Photo, just the Doggo
 

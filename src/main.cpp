@@ -55,7 +55,7 @@ std::string_view statusName(DatabaseTx::Status status) {
 }
 
 } // namespace
-
+//THIS IS JUST A SIMULATED DEMO TO TEST FUNCTIONALITY WHILE BUILDING!
 int main() {
     DataBus bus;
     LoggingComponent logger(bus, "designed-system.log");

@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.30)
-
 find_package(websocketpp CONFIG REQUIRED)
 find_package(Boost CONFIG REQUIRED COMPONENTS system)
 find_package(OpenSSL REQUIRED)
