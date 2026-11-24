@@ -293,9 +293,11 @@ void demonstrateDatabaseComponent(DataBus& bus, const std::string& dsn) {
 
 int main() {
     DataBus bus;
+    std::println("Size of Databus object: {}", sizeof(bus));
     LoggingComponent logger{bus, std::filesystem::path{"designed-system.log"}};
     NotifyingComponent notifier{bus};
-
+    std::println("Size of LoggingComponent object: {}", sizeof(logger));
+        std::println("Size of NotifyingComponent object: {}", sizeof(notifier));
     bool loggerStarted = false;
     bool notifierStarted = false;
 

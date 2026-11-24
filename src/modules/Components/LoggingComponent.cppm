@@ -16,9 +16,7 @@ public:
     }
 
     void start() override {
-        if (started_) {
-            return;
-        }
+        if (started_) {return;}
 
         if (!logFile_.is_open()) {
             logFile_.open(logFilePath_, std::ios::out | std::ios::app);
@@ -28,16 +26,12 @@ public:
             }
         }
 
-        bus_.subscribe<LogEntry>(
-            SubscriptionId,
-            [this](const LogEntry& entry) { write(entry); });
+        bus_.subscribe<LogEntry>(SubscriptionId,[this](const LogEntry& entry) { write(entry); });
         started_ = true;
     }
 
     void stop() override {
-        if (!started_) {
-            return;
-        }
+        if (!started_) {return;}
 
         bus_.unsubscribe<LogEntry>(SubscriptionId);
         started_ = false;
@@ -75,7 +69,7 @@ private:
         logFile_ << std::format(
             "[{:%Y-%m-%d %H:%M:%S}] [{}] {}\n",
             entry.now,
-            typeName(entry.type),
+            LoggingComponent::typeName(entry.type),
             entry.message);
         if (!logFile_) {
             throw std::runtime_error(

@@ -18,6 +18,16 @@ import std;
 //     subscriber's own callback is allowed.)
 //   * Callbacks of ONE subscriber never run concurrently with each other.
 export class DataBus {
+private:
+    struct Subscriber {
+        std::string identifier;
+        std::function<void(const void*)> callback;
+        std::atomic<bool> active{true};
+        std::recursive_mutex running;   // held while the callback executes
+    };
+
+    using SubscriberList = std::vector<std::shared_ptr<Subscriber>>;
+
 public:
     using ErrorHandler =
         std::function<void(std::string_view subscriber, std::exception_ptr error)>;
@@ -27,40 +37,49 @@ public:
     DataBus& operator=(const DataBus&) = delete;
 
     // --- Events -----------------------------------------------------------
-
     template <typename Event>
     void subscribe(std::string_view identifier, std::function<void(const Event&)> callback) {
         auto subscriber = std::make_shared<Subscriber>();
-        subscriber->identifier = std::string{identifier};
-        subscriber->callback =
-            [callback = std::move(callback)](const std::any& data) {
-                callback(std::any_cast<const Event&>(data));
-            };
+        subscriber->identifier = identifier;
+        subscriber->callback = [callback = std::move(callback)](const void* data) {
+            callback(*static_cast<const Event*>(data));
+        };
 
         std::unique_lock lock(mtx_);
-        subscribers_[std::type_index{typeid(Event)}].push_back(std::move(subscriber));
+        auto& slot = subscribers_[std::type_index{typeid(Event)}];
+        auto next = slot ? std::make_shared<SubscriberList>(*slot)
+                         : std::make_shared<SubscriberList>();
+        next->push_back(std::move(subscriber));
+        slot = std::move(next);
     }
 
     // Removes every subscription of this Event type registered under `identifier`.
     template <typename Event>
     void unsubscribe(std::string_view identifier) {
-        std::vector<std::shared_ptr<Subscriber>> removed;
+        SubscriberList removed;
         {
             std::unique_lock lock(mtx_);
             auto found = subscribers_.find(std::type_index{typeid(Event)});
-            if (found == subscribers_.end()) {
+            if (found == subscribers_.end() || !found->second) {
                 return;
             }
-            auto& list = found->second;
-            for (auto it = list.begin(); it != list.end();) {
-                if ((*it)->identifier == identifier) {
-                    (*it)->active.store(false);
-                    removed.push_back(std::move(*it));
-                    it = list.erase(it);
+
+            auto next = std::make_shared<SubscriberList>();
+            next->reserve(found->second->size());
+
+            for (const auto& sub : *found->second) {
+                if (sub->identifier == identifier) {
+                    sub->active.store(false);
+                    removed.push_back(sub);
                 } else {
-                    ++it;
+                    next->push_back(sub);
                 }
             }
+
+            if (removed.empty()) {
+                return;
+            }
+            found->second = std::move(next);
         }
 
         // Wait (without holding the bus lock) for callbacks that are mid-flight.
@@ -71,19 +90,18 @@ public:
 
     template <typename Event>
     void publish(const Event& event) const {
-        std::vector<std::shared_ptr<Subscriber>> snapshot;
+        std::shared_ptr<const SubscriberList> snapshot;
         {
             std::shared_lock lock(mtx_);
             auto found = subscribers_.find(std::type_index{typeid(Event)});
-            if (found == subscribers_.end() || found->second.empty()) {
+            if (found == subscribers_.end() || !found->second || found->second->empty()) {
                 return;
             }
-            snapshot = found->second;   // copies shared_ptrs only
+            snapshot = found->second; // Single atomic ref-count bump, zero heap allocations
         }
 
-        const std::any payload{event};  // the event is copied once, not once per subscriber
-        for (const auto& subscriber : snapshot) {
-            deliver(*subscriber, payload);
+        for (const auto& subscriber : *snapshot) {
+            deliver(*subscriber, &event);
         }
     }
 
@@ -91,11 +109,10 @@ public:
     [[nodiscard]] std::size_t subscriberCount() const {
         std::shared_lock lock(mtx_);
         auto found = subscribers_.find(std::type_index{typeid(Event)});
-        return found == subscribers_.end() ? 0 : found->second.size();
+        return (found == subscribers_.end() || !found->second) ? 0 : found->second->size();
     }
 
     // --- Request / response -----------------------------------------------
-
     template <typename Request, typename Response>
     void provide(std::function<Response(const Request&)> handler) {
         std::unique_lock lock(mtx_);
@@ -142,14 +159,7 @@ public:
     }
 
 private:
-    struct Subscriber {
-        std::string identifier;
-        std::function<void(const std::any&)> callback;
-        std::atomic<bool> active{true};
-        std::recursive_mutex running;   // held while the callback executes
-    };
-
-    void deliver(Subscriber& subscriber, const std::any& payload) const {
+    void deliver(Subscriber& subscriber, const void* payload) const {
         std::lock_guard guard(subscriber.running);
         if (!subscriber.active.load()) {
             return;
@@ -172,23 +182,15 @@ private:
                 handler(identifier, error);
                 return;
             }
-            try {
-                std::rethrow_exception(error);
-            } catch (const std::exception& e) {
-                std::cerr << "[DataBus] subscriber '" << identifier
-                          << "' threw: " << e.what() << '\n';
-            } catch (...) {
-                std::cerr << "[DataBus] subscriber '" << identifier
-                          << "' threw an unknown exception\n";
-            }
+        } catch (const std::exception& e) {
+            std::println("[DataBus] subscriber '{}' threw: {}", identifier, e.what());
         } catch (...) {
-            // An error handler must not be able to break event delivery.
+            std::println("[DataBus] subscriber '{}' threw: threw an unknown exception", identifier);
         }
     }
 
     mutable std::shared_mutex mtx_;
-    std::unordered_map<std::type_index, std::vector<std::shared_ptr<Subscriber>>> subscribers_;
+    std::unordered_map<std::type_index, std::shared_ptr<const SubscriberList>> subscribers_;
     std::unordered_map<std::type_index, std::function<std::any(const std::any&)>> providers_;
     ErrorHandler errorHandler_;
-
 };
