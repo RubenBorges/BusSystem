@@ -1,23 +1,9 @@
 #pragma once
-
-#include <array>
-#include <cstddef>
-#include <cstdint>
-#include <expected>
-#include <filesystem>
-#include <format>
-#include <initializer_list>
-#include <iostream>
-#include <iterator>
-#include <optional>
-#include <print>
-#include <stdexcept>
-#include <string>
-#include <string_view>
-#include <utility>
 #include <pqxx/pqxx>
-// #include <Components.hpp>
-#include <UtilitiesQL.hpp>
+
+import std;
+import Components;
+import UtilitiesQL;
 
 
 #ifndef MAXCOLUMNS__

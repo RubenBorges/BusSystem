@@ -1,16 +1,8 @@
 #pragma once
-
-#include <expected>
-#include <filesystem>
-#include <format>
-#include <fstream>
 #include <pqxx/pqxx>
-#include <string>
-#include <string_view>
+import std;
+import EventType;
 
-#include <eventType.hpp>
-
-#include <cctype>
 
 // Key<->Value: pqxx::connection conn("host=127.0.0.1 port=5432 dbname=mydb
 // user=postgres password=secret"); URI: pqxx::connection

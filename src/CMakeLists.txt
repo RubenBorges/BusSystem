@@ -6,7 +6,7 @@ find_package(libpqxx CONFIG REQUIRED)
 
 set(SYSSOURCES
     main.cpp
-    Components/modules/Components.cpp
+modules/Components.cpp
 )
 
 add_executable(DesignedSystem
@@ -19,14 +19,16 @@ target_compile_features(DesignedSystem PRIVATE cxx_std_26)
 target_sources(DesignedSystem
     PUBLIC
         FILE_SET CXX_MODULES
-        BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/Components/modules
+        BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
         FILES
-            Components/modules/DataBus.cppm
-            Components/modules/EventType.cppm
-            Components/modules/UtilitiesQL.cppm
-            Components/modules/Components.cppm
-            Components/modules/DatabaseComponent.cppm
-            Components/modules/LoggingComponent.cppm
+            modules/DataBus.cppm
+            modules/EventType.cppm
+            modules/UtilitiesQL.cppm
+            modules/Components.cppm
+            modules/DatabaseComponent.cppm
+            modules/LoggingComponent.cppm
+            modules/SubscriptionPolicies.cppm
+            modules/StoragePolicies.cppm
 )
 
 target_include_directories(DesignedSystem PRIVATE

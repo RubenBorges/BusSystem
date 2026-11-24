@@ -1,18 +1,6 @@
 #pragma once
 
-#include <iostream>
-#include <fstream>
-#include <format>
-#include <chrono>
-
-// Containers
-#include <vector>
-
-#include <algorithm>
-#include <utility>
-
-#include <string_view>
-
+import std;
 
 // SUBSCRIPTION TYPE POLICIES for MessageBus
 struct SubscriptionPolicy {
