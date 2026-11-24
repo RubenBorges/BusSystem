@@ -10,13 +10,13 @@ public:
         : Component<>(bus), logFilePath_(std::move(logFilePath)) {}
 
     ~LoggingComponent() override {
-        if (running_) {
-            this->bus_.template unsubscribe<LogEntry>(SubscriptionId);
+        if (started_) {
+            bus_.unsubscribe<LogEntry>(SubscriptionId);
         }
     }
 
     void start() override {
-        if (running_) {
+        if (started_) {
             return;
         }
 
@@ -28,19 +28,19 @@ public:
             }
         }
 
-        this->bus_.template subscribe<LogEntry>(
+        bus_.subscribe<LogEntry>(
             SubscriptionId,
             [this](const LogEntry& entry) { write(entry); });
-        running_ = true;
+        started_ = true;
     }
 
     void stop() override {
-        if (!running_) {
+        if (!started_) {
             return;
         }
 
-        this->bus_.template unsubscribe<LogEntry>(SubscriptionId);
-        running_ = false;
+        bus_.unsubscribe<LogEntry>(SubscriptionId);
+        started_ = false;
 
         std::lock_guard lock(writeMutex_);
         logFile_.flush();
@@ -86,5 +86,4 @@ private:
     std::filesystem::path logFilePath_;
     std::ofstream logFile_;
     std::mutex writeMutex_;
-    bool running_{false};
 };

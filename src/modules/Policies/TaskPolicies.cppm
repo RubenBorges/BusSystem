@@ -3,25 +3,54 @@ export module TaskPolicies;
 import std;
 import Graph;
 
-export template <typename Policy, typename... Args>
-concept ExecutionPolicy = requires(const Policy& policy, Args&&... args) {
-    policy.execute(std::forward<Args>(args)...);
+// ============================================================================
+//  Concepts
+// ============================================================================
+
+// A policy that can launch a callable and hand back a task handle.
+export template <typename Policy, typename Function, typename... Args>
+concept ExecutionPolicy = requires(const Policy& policy, Function&& function, Args&&... args) {
+    policy.execute(std::forward<Function>(function), std::forward<Args>(args)...);
 };
 
-export template <typename Policy>
-concept ErrorHandlingPolicy = requires(const Policy& policy) {
-    policy.handle_exception();
+// What every task handle returned by an execution policy must offer.
+export template <typename Task>
+concept TaskHandle = requires(Task& task, const Task& constTask) {
+    { constTask.is_ready() } -> std::convertible_to<bool>;
+    { task.request_stop() } -> std::convertible_to<bool>;
+    task.get();
 };
+
+// An execution policy a Component can be built on: it must be able to launch a
+// plain void() callable. (Remote/generator policies below are different families.)
+export template <typename Policy>
+concept TaskLaunchPolicy = ExecutionPolicy<Policy, void (*)()>;
+
+// An error policy is told about every exception the executor intercepts.
+// It either rethrows (propagate), or returns (the executor reports the failure
+// to the caller through std::expected).
+export template <typename Policy>
+concept ErrorHandlingPolicy = requires(const Policy& policy, std::exception_ptr error) {
+    policy.handle_exception(error);
+};
+
+// ============================================================================
+//  Error policies
+// ============================================================================
 
 export struct RethrowErrorPolicy {
-    [[noreturn]] void handle_exception() const {
-        throw;
+    [[noreturn]] void handle_exception(std::exception_ptr error) const {
+        std::rethrow_exception(std::move(error));
     }
 };
 
 export struct IgnoreErrorPolicy {
-    void handle_exception() const noexcept {}
+    void handle_exception(std::exception_ptr) const noexcept {}
 };
+
+// ============================================================================
+//  Task handles
+// ============================================================================
 
 export template <typename Result>
 struct ImmediateTask {
@@ -38,21 +67,6 @@ struct ImmediateTask<void> {
     constexpr bool is_ready() const noexcept { return true; }
     constexpr bool request_stop() noexcept { return false; }
     constexpr void get() const noexcept {}
-};
-
-export struct LocalThreadPolicy {
-    template <typename Function, typename... Args>
-    constexpr auto execute(Function&& function, Args&&... args) const {
-        using Result = std::invoke_result_t<Function, Args...>;
-        if constexpr (std::is_void_v<Result>) {
-            std::invoke(std::forward<Function>(function), std::forward<Args>(args)...);
-            return ImmediateTask<void>{};
-        } else {
-            return ImmediateTask<Result>{
-                std::invoke(std::forward<Function>(function), std::forward<Args>(args)...)
-            };
-        }
-    }
 };
 
 export template <typename Result>
@@ -75,11 +89,11 @@ struct MultiThreadTask {
         }
     }
 
-    decltype(auto) get() {
-        return result.get();
-    }
+    decltype(auto) get() {return result.get();}
 };
 
+// NOTE: the destructor of a future obtained from std::async blocks until the
+// task has finished, so destroying (or replacing) an AsyncTask waits for it.
 export template <typename Result>
 struct AsyncTask {
     std::future<Result> result;
@@ -93,6 +107,28 @@ struct AsyncTask {
     decltype(auto) get() { return result.get(); }
 };
 
+// ============================================================================
+//  Execution policies (family 1: "run this callable")
+// ============================================================================
+
+// Runs the callable immediately on the calling thread.
+export struct LocalThreadPolicy {
+    template <typename Function, typename... Args>
+    constexpr auto execute(Function&& function, Args&&... args) const {
+        using Result = std::remove_cvref_t<std::invoke_result_t<Function, Args...>>;
+        if constexpr (std::is_void_v<Result>) {
+            std::invoke(std::forward<Function>(function), std::forward<Args>(args)...);
+            return ImmediateTask<void>{};
+        } else {
+            return ImmediateTask<Result>{
+                std::invoke(std::forward<Function>(function), std::forward<Args>(args)...)
+            };
+        }
+    }
+};
+
+// Runs the callable on its own std::jthread. If the callable accepts a
+// std::stop_token as its first parameter, it receives the thread's token.
 export struct MultiThreadPolicy {
     template <typename Function, typename... Args>
     [[nodiscard]] auto execute(Function&& function, Args&&... args) const {
@@ -158,6 +194,7 @@ private:
     }
 };
 
+// Runs the callable with std::async(std::launch::async, ...).
 export struct AsyncPolicy {
     template <typename Function, typename... Args>
     [[nodiscard]] auto execute(Function&& function, Args&&... args) const {
@@ -171,6 +208,12 @@ export struct AsyncPolicy {
     }
 };
 
+// ============================================================================
+//  Other policy families (NOT interchangeable with the execution policies
+//  above, so they are deliberately not TaskLaunchPolicy models)
+// ============================================================================
+
+// Identity "policy" for generator pipelines. It takes a generator, not a callable.
 export struct GeneratorPolicy {
     template <typename Value>
     [[nodiscard]] std::generator<Value> execute(
@@ -226,38 +269,79 @@ export struct RemoteTaskPolicy {
     }
 };
 
+export template <typename Policy>
+concept RemoteExecutionPolicy = requires(
+    const Policy& policy, Process& root, GraphFrame frame, RemoteTaskHandle& wave) {
+    { policy.start(root, std::move(frame)) } -> std::same_as<RemoteTaskHandle>;
+    { policy.convergecast(wave) } -> std::convertible_to<bool>;
+};
+
+// ============================================================================
+//  Defaults
+// ============================================================================
+
 export using TaskPolicy = LocalThreadPolicy;
 export using DefaultTaskPolicy = LocalThreadPolicy;
 export using DefaultErrorPolicy = RethrowErrorPolicy;
 
-export template <typename Policy, typename... Args>
-concept TaskExecutionPolicy = requires(
-    const Policy& policy,
-    Args&&... args) {
-    policy.execute(std::forward<Args>(args)...);
-};
+// ============================================================================
+//  Executor: host class combining an execution policy and an error policy
+// ============================================================================
 
 export template <
-    typename ExecPolicy = DefaultTaskPolicy,
+    TaskLaunchPolicy ExecPolicy = DefaultTaskPolicy,
     ErrorHandlingPolicy ErrPolicy = DefaultErrorPolicy>
 class TaskExecutor : public ExecPolicy, private ErrPolicy {
 public:
+    // The task handle type the execution policy returns for Function(Args...).
+    template <typename Function, typename... Args>
+    using launch_result_t = decltype(std::declval<const ExecPolicy&>().execute(
+        std::declval<Function>(), std::declval<Args>()...));
+
+    // Handle type for a void() job (what Component stores as its active task).
+    using void_task_type = launch_result_t<void (*)()>;
+
     constexpr TaskExecutor() = default;
 
     constexpr explicit TaskExecutor(ExecPolicy exec, ErrPolicy err = {})
         : ExecPolicy(std::move(exec)), ErrPolicy(std::move(err)) {}
 
-    using ExecPolicy::execute;
-
+    // Launch. Exceptions thrown while launching go to the error policy; if it
+    // returns (e.g. IgnoreErrorPolicy) the failure is reported in the result,
+    // never by falling off the end of the function.
     template <typename Function, typename... Args>
         requires ExecutionPolicy<ExecPolicy, Function, Args...>
-    decltype(auto) run(Function&& function, Args&&... args) const {
+    [[nodiscard]] auto run(Function&& function, Args&&... args) const
+        -> std::expected<launch_result_t<Function, Args...>, std::exception_ptr> {
         try {
             return ExecPolicy::execute(
                 std::forward<Function>(function),
                 std::forward<Args>(args)...);
         } catch (...) {
-            ErrPolicy::handle_exception();
+            std::exception_ptr error = std::current_exception();
+            ErrPolicy::handle_exception(error);
+            return std::unexpected(std::move(error));
+        }
+    }
+
+    // Wait for a task and fetch its result. Exceptions raised *inside* the task
+    // (which Multi/Async policies capture in the future) go through the same
+    // error policy, so every execution policy has the same error contract.
+    template <TaskHandle Task>
+    auto collect(Task& task) const {
+        using Value = std::remove_cvref_t<decltype(task.get())>;
+        using Outcome = std::expected<Value, std::exception_ptr>;
+        try {
+            if constexpr (std::is_void_v<Value>) {
+                task.get();
+                return Outcome{};
+            } else {
+                return Outcome{task.get()};
+            }
+        } catch (...) {
+            std::exception_ptr error = std::current_exception();
+            ErrPolicy::handle_exception(error);
+            return Outcome{std::unexpected(std::move(error))};
         }
     }
 
@@ -265,3 +349,20 @@ public:
         return *this;
     }
 };
+
+// ----------------------------------------------------------------------------
+//  Compile-time checks that the built-in policies model the concepts
+// ----------------------------------------------------------------------------
+
+static_assert(TaskLaunchPolicy<LocalThreadPolicy>);
+static_assert(TaskLaunchPolicy<MultiThreadPolicy>);
+static_assert(TaskLaunchPolicy<AsyncPolicy>);
+static_assert(!TaskLaunchPolicy<GeneratorPolicy>);
+static_assert(!TaskLaunchPolicy<RemoteTaskPolicy>);
+static_assert(RemoteExecutionPolicy<RemoteTaskPolicy>);
+static_assert(ErrorHandlingPolicy<RethrowErrorPolicy>);
+static_assert(ErrorHandlingPolicy<IgnoreErrorPolicy>);
+static_assert(TaskHandle<ImmediateTask<void>>);
+static_assert(TaskHandle<ImmediateTask<int>>);
+static_assert(TaskHandle<MultiThreadTask<void>>);
+static_assert(TaskHandle<AsyncTask<void>>);

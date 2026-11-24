@@ -13,11 +13,11 @@ public:
         : Component<>(bus), graphProcess_(&graphProcess) {}
 
     void start() override {
-        if (running_) {
+        if (started_) {
             return;
         }
 
-        this->bus_.template subscribe<NotifyEvent>(
+        bus_.subscribe<NotifyEvent>(
             SubscriptionId,
             [this](const NotifyEvent& event) { notify(event); });
 
@@ -26,30 +26,30 @@ public:
                 graphProcess_->setDataHandler(
                     [this](const GraphFrame& frame) { receive(frame); });
             }
-            running_ = true;
+            started_ = true;
         } catch (...) {
-            this->bus_.template unsubscribe<NotifyEvent>(SubscriptionId);
+            bus_.unsubscribe<NotifyEvent>(SubscriptionId);
             throw;
         }
     }
 
     ~NotifyingComponent() override {
-        if (running_) {
+        if (started_) {
             stop();
         }
     }
 
     void stop() override {
-        if (!running_) {
+        if (!started_) {
             return;
         }
 
-        this->bus_.template unsubscribe<NotifyEvent>(SubscriptionId);
+        bus_.unsubscribe<NotifyEvent>(SubscriptionId);
         if (graphProcess_) {
             std::lock_guard lock(graphMutex_);
             graphProcess_->setDataHandler({});
         }
-        running_ = false;
+        started_ = false;
     }
 
     void pollGraph() {
@@ -228,5 +228,4 @@ private:
     std::mutex outputMutex_;
     std::mutex graphMutex_;
     WaveID nextWaveID_{1};
-    bool running_{false};
 };

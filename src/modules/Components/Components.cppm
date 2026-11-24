@@ -1,10 +1,7 @@
-module; // Global module fragment: only headers needed by the class declarations
-
-import std;
-import TaskPolicies;
-
 export module Components;
 
+import std;
+export import TaskPolicies;
 export import DataBus;
 export import EventType;
 
@@ -15,54 +12,96 @@ public:
     virtual ~IComponent() = default;
 };
 
-export template <typename Policy = DefaultTaskPolicy>
+// Policy host. A Component is configured with
+//   * ExecPolicy : how background work is launched (inline, thread, async, ...)
+//   * ErrPolicy  : what happens to exceptions the executor intercepts
+// Both default to the library defaults, so `Component<>` and `Component<P>` work.
+export template <TaskLaunchPolicy ExecPolicy = DefaultTaskPolicy,
+                 ErrorHandlingPolicy ErrPolicy = DefaultErrorPolicy>
 class Component : public IComponent {
 public:
-    using task_policy_type = Policy;
+    using exec_policy_type = ExecPolicy;
+    using error_policy_type = ErrPolicy;
+    using task_policy_type = ExecPolicy;   // kept for existing code
+    using executor_type = TaskExecutor<ExecPolicy, ErrPolicy>;
+    using active_task_type = typename executor_type::void_task_type;
 
     explicit Component(DataBus& bus, std::string initParam = "")
         : bus_(bus), initParam_(std::move(initParam)) {}
 
+    [[nodiscard]] bool isStarted() const noexcept { return started_; }
+
 protected:
     template <typename Function, typename... Args>
-    decltype(auto) executeTask(Function&& function, Args&&... args) const {
+    [[nodiscard]] auto executeTask(Function&& function, Args&&... args) const {
         return taskExecutor_.run(
             std::forward<Function>(function),
             std::forward<Args>(args)...);
     }
 
-    const Policy& taskPolicy() const noexcept {
+    template <TaskHandle Task>
+    auto collectTask(Task& task) const {
+        return taskExecutor_.collect(task);
+    }
+
+    const ExecPolicy& taskPolicy() const noexcept {
         return taskExecutor_;
+    }
+
+    // --- Single "active task" slot shared by components that run one job at a time ---
+
+    // Replaces the active task (waiting for / joining the previous one) and
+    // launches `job` through the execution policy.
+    template <typename Function>
+    void launchActive(Function&& job) {
+        static_assert(std::is_void_v<std::invoke_result_t<Function&>>,
+                      "launchActive expects a void() job");
+        activeTask_.reset();
+        if (auto task = executeTask(std::forward<Function>(job))) {
+            activeTask_.emplace(std::move(*task));
+        }
+    }
+
+    // Requests cancellation and drops the active task. Errors raised inside it
+    // are discarded; use collectActive() first if you need them.
+    void stopActive() {
+        if (activeTask_) {
+            activeTask_->request_stop();
+            activeTask_.reset();
+        }
+    }
+
+    // Waits for the active task and reports its outcome through the error policy.
+    std::expected<void, std::exception_ptr> collectActive() {
+        if (!activeTask_) {
+            return {};
+        }
+        auto outcome = taskExecutor_.collect(*activeTask_);
+        activeTask_.reset();
+        return outcome;
     }
 
     DataBus& bus_;
     std::string initParam_;
     bool started_ = false;
 
-    TaskExecutor<Policy> taskExecutor_{};
+    [[no_unique_address]] executor_type taskExecutor_{};
+    std::optional<active_task_type> activeTask_;
 };
 
-export template <typename Policy = DefaultTaskPolicy>
-class SensorComponent : public Component<Policy> {
+export template <TaskLaunchPolicy ExecPolicy = DefaultTaskPolicy,
+                 ErrorHandlingPolicy ErrPolicy = DefaultErrorPolicy>
+class SensorComponent : public Component<ExecPolicy, ErrPolicy> {
 public:
-    using Component<Policy>::Component;
-    using active_task_type = decltype(
-        std::declval<TaskExecutor<Policy>&>().run([] {}));
+    using Base = Component<ExecPolicy, ErrPolicy>;
+    using Base::Base;
 
     void start() override {
-        if (this->started_) {
-            return;
-        }
         this->started_ = true;
     }
 
     void stop() override {
-        if (activeTask_) {
-            if constexpr (requires { activeTask_->request_stop(); }) {
-                activeTask_->request_stop();
-            }
-            activeTask_.reset();
-        }
+        this->stopActive();
         this->started_ = false;
     }
 
@@ -71,24 +110,21 @@ public:
             return;
         }
 
-        activeTask_.reset();
-        activeTask_.emplace(this->executeTask([this]() {
-            std::random_device rd;
-            std::mt19937 gen(rd());
+        this->launchActive([this]() {
+            thread_local std::mt19937 gen{std::random_device{}()};
             std::uniform_int_distribution<int> dist(1, 100);
             this->bus_.publish(
                 TemperatureUpdated{static_cast<float>(dist(gen))});
-        }));
+        });
     }
-
-private:
-    std::optional<active_task_type> activeTask_;
 };
 
-export template <typename Policy = DefaultTaskPolicy>
-class DiagnosticsComponent : public Component<Policy> {
+export template <TaskLaunchPolicy ExecPolicy = DefaultTaskPolicy,
+                 ErrorHandlingPolicy ErrPolicy = DefaultErrorPolicy>
+class DiagnosticsComponent : public Component<ExecPolicy, ErrPolicy> {
 public:
-    using Component<Policy>::Component;
+    using Base = Component<ExecPolicy, ErrPolicy>;
+    using Base::Base;
 
     void start() override {
         if (this->started_) {
@@ -121,24 +157,19 @@ public:
     }
 };
 
-export template <typename Policy = DefaultTaskPolicy>
-class DashboardComponent : public Component<Policy> {
+export template <TaskLaunchPolicy ExecPolicy = DefaultTaskPolicy,
+                 ErrorHandlingPolicy ErrPolicy = DefaultErrorPolicy>
+class DashboardComponent : public Component<ExecPolicy, ErrPolicy> {
 public:
-    using Component<Policy>::Component;
-    using active_task_type = decltype(
-        std::declval<TaskExecutor<Policy>&>().run([] {}));
+    using Base = Component<ExecPolicy, ErrPolicy>;
+    using Base::Base;
 
     void start() override {
         this->started_ = true;
     }
 
     void stop() override {
-        if (activeTask_) {
-            if constexpr (requires { activeTask_->request_stop(); }) {
-                activeTask_->request_stop();
-            }
-            activeTask_.reset();
-        }
+        this->stopActive();
         this->started_ = false;
     }
 
@@ -147,15 +178,11 @@ public:
             return;
         }
 
-        activeTask_.reset();
-        activeTask_.emplace(this->executeTask([this]() {
+        this->launchActive([this]() {
             HealthReport report =
                 this->bus_.template call<HealthReport>(GetSystemHealth{42});
             std::cout << "[Dashboard] Health check: "
                       << report.status << '\n';
-        }));
+        });
     }
-
-private:
-    std::optional<active_task_type> activeTask_;
 };

@@ -11,3 +11,4 @@ project(DesignedSystem LANGUAGES CXX)
 add_subdirectory(src)
 
 install(TARGETS DesignedSystem DESTINATION .)
+install (FILES "conf/bql.conf" DESTINATION .)
