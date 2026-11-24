@@ -1,5 +1,0 @@
-$root .
-DataBus src/CMakeFiles/DesignedSystem.dir/DataBus.gcm
-EventType src/CMakeFiles/DesignedSystem.dir/EventType.gcm
-std src/CMakeFiles/@cmake_cxx_std@synth_0.dir/70b2301d7307.bmi
-Components src/CMakeFiles/DesignedSystem.dir/Components.gcm
