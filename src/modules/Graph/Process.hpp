@@ -1,3 +1,3 @@
 export module Graph:ProcessHeader;
 
-export import :Process;
+export import Graph;

@@ -2,6 +2,7 @@ build
 build/**
 dist
 dist/**
-./boopyconf
+conf
 boopconf/boopy.ql
 .cache
+designed-system.log

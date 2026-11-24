@@ -4,6 +4,7 @@ import Components;
 import DatabaseComponent;
 import DataBus;
 import EventType;
+import Graph;
 import LoggingComponent;
 import NotifyingComponent;
 import Pqxx;
@@ -72,6 +73,30 @@ int main() {
         loggerStarted = true;
         notifier.start();
         notifierStarted = true;
+
+        {
+            DataBus graphRootBus;
+            DataBus graphPeerBus;
+            Process graphRoot{100};
+            Process graphPeer{101};
+            graphRoot.addChild(&graphPeer);
+            graphRoot.registerChannel(
+                graphPeer.identity,
+                PointerChannel<Process>(&graphPeer));
+            graphPeer.registerChannel(
+                graphRoot.identity,
+                PointerChannel<Process>(&graphRoot));
+
+            NotifyingComponent graphRootNotifier{graphRootBus, graphRoot};
+            NotifyingComponent graphPeerNotifier{graphPeerBus, graphPeer};
+            graphRootNotifier.start();
+            graphPeerNotifier.start();
+            graphRootBus.publish(NotifyEvent{
+                .type = NotifyEvent::Type::Sys,
+                .now = std::chrono::system_clock::now(),
+                .message = "Graph demo: this notification is delivered to the simulated peer"
+            });
+        }
 
         bus.subscribe<DatabaseTx>(
             DatabaseStatusSubscription,

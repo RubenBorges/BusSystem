@@ -18,7 +18,7 @@ add_executable(DesignedSystem
     main.cpp
     modules/Components/Components.cpp
     modules/Graph/CentralCoordinatorIDGen.cpp
-    modules/Graph/Process.cpp
+    modules/Graph/Graph.cpp
     modules/Graph/WebSocketConnection.cpp
     modules/Graph/Wire.cpp
 )
