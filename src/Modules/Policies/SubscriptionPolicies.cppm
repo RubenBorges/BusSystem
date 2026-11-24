@@ -1,11 +1,9 @@
-module;
+export module SubscriptionPolicies;
 
 import std;
 
-export module SubscriptionPolicies;
-
 // SUBSCRIPTION TYPE POLICIES for MessageBus
-struct SubscriptionPolicy {
+export struct SubscriptionPolicy {
     // Defines the lifecycle action for creating a named subscription.
     virtual void subscribe(std::string_view subscriberId) = 0;
     // Defines the lifecycle action for removing a named subscription.
@@ -15,7 +13,7 @@ struct SubscriptionPolicy {
     virtual ~SubscriptionPolicy() = default;
 };
 
-struct LogSubscriptionPolicy : public SubscriptionPolicy {
+export struct LogSubscriptionPolicy : public SubscriptionPolicy {
     // The policy owns the log file used for subscription lifecycle messages.
     std::ofstream logFile{"log.txt", std::ios::app};
 
@@ -39,7 +37,7 @@ struct LogSubscriptionPolicy : public SubscriptionPolicy {
     }
 };
 
-struct NotifySubscriptionPolicy : public SubscriptionPolicy {
+export struct NotifySubscriptionPolicy : public SubscriptionPolicy {
     void subscribe(std::string_view subscriberId) override {
         // Print the exact subscriber identifier that created the subscription.
         std::cout << "Subscribed: " << subscriberId << '\n';
@@ -52,7 +50,7 @@ struct NotifySubscriptionPolicy : public SubscriptionPolicy {
 };
 
 
-struct NoopSubscriptionPolicy : public SubscriptionPolicy {
+export struct NoopSubscriptionPolicy : public SubscriptionPolicy {
     // This default policy performs no action for applications that need no lifecycle behavior.
     void subscribe(std::string_view) override {}
     // This default policy performs no action for applications that need no lifecycle behavior.

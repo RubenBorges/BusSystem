@@ -6,9 +6,8 @@ export module DatabaseComponent;
 import std;
 
 import Pqxx;
-import Components;
-import DataBus;
-import EventType;
+export import Components;
+
 import UtilitiesQL;
 
 #ifndef MAXCOLUMNS__
@@ -21,7 +20,7 @@ export enum class txnState : unsigned char { invalid = '0', valid = '1' };
 
 export class DatabaseComponent : public Component {
     DataBus& bus_;
-    bool started_ = false;
+    bool running{false};
     std::string currentTransaction_;
 
     // Lightweight fixed-capacity views for column names (zero heap allocations)
@@ -51,12 +50,12 @@ public:
         if (!conn_ || !conn_->is_open()) {
             conn_.emplace(connStr_);
         }
-        started_ = true;
+        running = true;
     }
 
     void stop() override {
         conn_.reset();
-        started_ = false;
+        running = false;
     }
 
     // --- Lightweight Builders ---

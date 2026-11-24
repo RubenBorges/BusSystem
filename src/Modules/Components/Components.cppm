@@ -4,8 +4,8 @@ import std;
 
 export module Components;
 
-import DataBus;
-import EventType;
+export import DataBus;
+export import EventType;
 
 export class Component {
 public:

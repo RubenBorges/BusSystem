@@ -25,7 +25,7 @@ target_link_libraries(custom_pqxx INTERFACE PkgConfig::LIBPQ)
 
 add_executable(DesignedSystem
     main.cpp
-    modules/Components.cpp
+    Modules/Components/Components.cpp
 )
 
 target_compile_features(DesignedSystem PRIVATE cxx_std_26)
@@ -33,23 +33,26 @@ target_compile_features(DesignedSystem PRIVATE cxx_std_26)
 target_sources(DesignedSystem
     PRIVATE
         FILE_SET CXX_MODULES
-        BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
+        BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/Modules
         FILES
-            modules/DataBus.cppm
-            modules/EventType.cppm
-            modules/UtilitiesQL.cppm
-            modules/Components.cppm
-            modules/DatabaseComponent.cppm
-            modules/LoggingComponent.cppm
-            modules/SubscriptionPolicies.cppm
-            modules/StoragePolicies.cppm
-            modules/pqxx.cppm
+            Modules/Databus/DataBus.cppm
+            Modules/Events/EventType.cppm
+            Modules/Components/Components.cppm
+            Modules/Components/DatabaseComponent.cppm
+            Modules/Components/LoggingComponent.cppm
+            Modules/Components/NotifyingComponent.cppm
+            Modules/Policies/SubscriptionPolicies.cppm
+            Modules/Policies/StoragePolicies.cppm
+            Modules/Policies/Policies.cppm
+            Modules/MessageBus/MessageBus.cppm
+            Modules/MessageBus/MultiMessageBus.cppm
+            Modules/Utility/UtilitiesQL.cppm
+            Modules/Utility/pqxx.cppm
 )
 
 target_include_directories(DesignedSystem PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Components
-    ${CMAKE_CURRENT_SOURCE_DIR}/Policies
     ${CMAKE_CURRENT_SOURCE_DIR}/misc
 )
 

@@ -1,6 +1,6 @@
-#pragma once
-
-import std;
+module;
+import std; 
+export module Policies;
 
 // SUBSCRIPTION TYPE POLICIES for MessageBus
 struct SubscriptionPolicy {

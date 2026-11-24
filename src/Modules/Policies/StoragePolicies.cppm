@@ -1,10 +1,8 @@
-module;
-// STORAGE POLICIES for the MessageBus
-import std;
-
 export module StoragePolicies;
 
-template <typename T>
+import std;
+
+export template <typename T>
 struct VectorPolicy {
     // Stores all values managed by this policy in a vector.
     std::vector<T> items;

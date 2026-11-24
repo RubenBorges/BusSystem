@@ -1,8 +1,8 @@
 export module UtilitiesQL;
 
 import std;
-import EventType;
-import Pqxx;
+export import EventType;
+export import Pqxx;
 
 export {
 // Key<->Value: pqxx::connection conn("host=127.0.0.1 port=5432 dbname=mydb

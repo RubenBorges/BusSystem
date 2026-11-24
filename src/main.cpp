@@ -5,7 +5,6 @@ import DatabaseComponent;
 import DataBus;
 import EventType;
 import UtilitiesQL;
-
 namespace {
 
 // Ongoing sensor polling loop running on its own thread, publishing to the shared DataBus
