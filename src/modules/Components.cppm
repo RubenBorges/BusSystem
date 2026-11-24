@@ -1,7 +1,6 @@
 module; // Global module fragment: only headers needed by the class declarations
 
-#include <string>
-#include <utility>
+import std;
 
 export module Components;
 

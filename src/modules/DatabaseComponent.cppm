@@ -1,25 +1,11 @@
 module;
-// #include <array>
-// #include <cstddef>
-// #include <cstdint>
-// #include <expected>
-// #include <filesystem>
-// #include <format>
-// #include <initializer_list>
-// #include <iostream>
-// #include <iterator>
-// #include <optional>
-// #include <print>
-// #include <stdexcept>
-// #include <string>
-// #include <string_view>
-// #include <utility>
+#include <cstdio>
 
-
-#include <pqxx/pqxx>
-import std;
 export module DatabaseComponent;
 
+import std;
+
+import Pqxx;
 import Components;
 import DataBus;
 import EventType;

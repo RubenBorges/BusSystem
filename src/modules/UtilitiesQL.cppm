@@ -1,19 +1,8 @@
-module;
-
-#include <pqxx/pqxx>
-// #include <expected>
-// #include <filesystem>
-// #include <format>
-// #include <fstream>
-// #include <cctype>
-// #include <string>
-// #include <string_view>
-
-import std;
-
 export module UtilitiesQL;
 
+import std;
 import EventType;
+import Pqxx;
 
 export {
 // Key<->Value: pqxx::connection conn("host=127.0.0.1 port=5432 dbname=mydb
