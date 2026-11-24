@@ -8,71 +8,154 @@ export module Components;
 export import DataBus;
 export import EventType;
 
-export template <typename Policy = TaskPolicy>
-class Component {
+export class IComponent {
+public:
+    virtual void start() = 0;
+    virtual void stop() = 0;
+    virtual ~IComponent() = default;
+};
+
+export template <typename Policy = DefaultTaskPolicy>
+class Component : public IComponent {
 public:
     using task_policy_type = Policy;
 
-    virtual void start() = 0;
-    virtual void stop() = 0;
-    virtual ~Component() = default;
+    explicit Component(DataBus& bus, std::string initParam = "")
+        : bus_(bus), initParam_(std::move(initParam)) {}
 
 protected:
     template <typename Function, typename... Args>
     decltype(auto) executeTask(Function&& function, Args&&... args) const {
-        return taskExecutor_.execute(
+        return taskExecutor_.run(
             std::forward<Function>(function),
             std::forward<Args>(args)...);
     }
 
     const Policy& taskPolicy() const noexcept {
-        return taskExecutor_.policy();
+        return taskExecutor_;
     }
 
-private:
+    DataBus& bus_;
+    std::string initParam_;
+    bool started_ = false;
+
     TaskExecutor<Policy> taskExecutor_{};
 };
 
-export class SensorComponent : public Component<> {
+export template <typename Policy = DefaultTaskPolicy>
+class SensorComponent : public Component<Policy> {
 public:
-    explicit SensorComponent(DataBus& bus, std::string initParam = "")
-        : bus_(bus), initParam_(std::move(initParam)) {}
+    using Component<Policy>::Component;
+    using active_task_type = decltype(
+        std::declval<TaskExecutor<Policy>&>().run([] {}));
 
-    void start() override;
-    void stop() override;
-    void readSensor();
+    void start() override {
+        if (this->started_) {
+            return;
+        }
+        this->started_ = true;
+    }
+
+    void stop() override {
+        if (activeTask_) {
+            if constexpr (requires { activeTask_->request_stop(); }) {
+                activeTask_->request_stop();
+            }
+            activeTask_.reset();
+        }
+        this->started_ = false;
+    }
+
+    void readSensor() {
+        if (!this->started_) {
+            return;
+        }
+
+        activeTask_.reset();
+        activeTask_.emplace(this->executeTask([this]() {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_int_distribution<int> dist(1, 100);
+            this->bus_.publish(
+                TemperatureUpdated{static_cast<float>(dist(gen))});
+        }));
+    }
 
 private:
-    DataBus& bus_;
-    std::string initParam_;
-    bool started_ = false;
+    std::optional<active_task_type> activeTask_;
 };
 
-export class DiagnosticsComponent : public Component<> {
+export template <typename Policy = DefaultTaskPolicy>
+class DiagnosticsComponent : public Component<Policy> {
 public:
-    explicit DiagnosticsComponent(DataBus& bus, std::string initParam = "")
-        : bus_(bus), initParam_(std::move(initParam)) {}
+    using Component<Policy>::Component;
 
-    void start() override;
-    void stop() override;
+    void start() override {
+        if (this->started_) {
+            return;
+        }
+        this->started_ = true;
 
-private:
-    DataBus& bus_;
-    std::string initParam_;
-    bool started_ = false;
+        this->bus_.template subscribe<TemperatureUpdated>(
+            "diagnostics-temperature",
+            [](const TemperatureUpdated& event) {
+                std::cout << "[Diagnostics] Logged temp: "
+                          << event.celsius << "C\n";
+            });
+
+        this->bus_.template provide<GetSystemHealth, HealthReport>(
+            [](const GetSystemHealth& request) {
+                return HealthReport{
+                    true,
+                    "Subsystem " + std::to_string(request.subsystemId) + " nominal"};
+            });
+    }
+
+    void stop() override {
+        if (!this->started_) {
+            return;
+        }
+        this->bus_.template unsubscribe<TemperatureUpdated>("diagnostics-temperature");
+        this->bus_.template unprovide<GetSystemHealth>();
+        this->started_ = false;
+    }
 };
 
-export class DashboardComponent : public Component<> {
+export template <typename Policy = DefaultTaskPolicy>
+class DashboardComponent : public Component<Policy> {
 public:
-    explicit DashboardComponent(DataBus& bus, std::string initParam = "")
-        : bus_(bus), initParam_(std::move(initParam)) {}
+    using Component<Policy>::Component;
+    using active_task_type = decltype(
+        std::declval<TaskExecutor<Policy>&>().run([] {}));
 
-    void start() override;
-    void stop() override;
-    void refresh();
+    void start() override {
+        this->started_ = true;
+    }
+
+    void stop() override {
+        if (activeTask_) {
+            if constexpr (requires { activeTask_->request_stop(); }) {
+                activeTask_->request_stop();
+            }
+            activeTask_.reset();
+        }
+        this->started_ = false;
+    }
+
+    void refresh() {
+        if (!this->started_) {
+            return;
+        }
+
+        activeTask_.reset();
+        activeTask_.emplace(this->executeTask([this]() {
+            HealthReport report =
+                this->bus_.template call<HealthReport>(GetSystemHealth{42});
+            std::cout << "[Dashboard] Health check: "
+                      << report.status << '\n';
+        }));
+    }
 
 private:
-    DataBus& bus_;
-    std::string initParam_;
-    bool started_ = false;
+    std::optional<active_task_type> activeTask_;
 };

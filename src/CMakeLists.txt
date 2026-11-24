@@ -14,7 +14,6 @@ target_link_libraries(custom_pqxx INTERFACE PkgConfig::LIBPQ)
 
 add_executable(DesignedSystem
     main.cpp
-    modules/Components/Components.cpp
     modules/Graph/CentralCoordinatorIDGen.cpp
     modules/Graph/Graph.cpp
     modules/Graph/WebSocketConnection.cpp

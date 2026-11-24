@@ -3,15 +3,55 @@ export module TaskPolicies;
 import std;
 import Graph;
 
+export template <typename Policy, typename... Args>
+concept ExecutionPolicy = requires(const Policy& policy, Args&&... args) {
+    policy.execute(std::forward<Args>(args)...);
+};
+
+export template <typename Policy>
+concept ErrorHandlingPolicy = requires(const Policy& policy) {
+    policy.handle_exception();
+};
+
+export struct RethrowErrorPolicy {
+    [[noreturn]] void handle_exception() const {
+        throw;
+    }
+};
+
+export struct IgnoreErrorPolicy {
+    void handle_exception() const noexcept {}
+};
+
+export template <typename Result>
+struct ImmediateTask {
+    Result value{};
+
+    constexpr bool is_ready() const noexcept { return true; }
+    constexpr bool request_stop() noexcept { return false; }
+    constexpr Result get() && { return std::move(value); }
+    constexpr const Result& get() const& { return value; }
+};
+
+template <>
+struct ImmediateTask<void> {
+    constexpr bool is_ready() const noexcept { return true; }
+    constexpr bool request_stop() noexcept { return false; }
+    constexpr void get() const noexcept {}
+};
+
 export struct LocalThreadPolicy {
     template <typename Function, typename... Args>
-    constexpr decltype(auto) execute(Function&& function, Args&&... args) const
-        noexcept(noexcept(std::invoke(
-            std::forward<Function>(function),
-            std::forward<Args>(args)...))) {
-        return std::invoke(
-            std::forward<Function>(function),
-            std::forward<Args>(args)...);
+    constexpr auto execute(Function&& function, Args&&... args) const {
+        using Result = std::invoke_result_t<Function, Args...>;
+        if constexpr (std::is_void_v<Result>) {
+            std::invoke(std::forward<Function>(function), std::forward<Args>(args)...);
+            return ImmediateTask<void>{};
+        } else {
+            return ImmediateTask<Result>{
+                std::invoke(std::forward<Function>(function), std::forward<Args>(args)...)
+            };
+        }
     }
 };
 
@@ -20,17 +60,37 @@ struct MultiThreadTask {
     std::jthread worker;
     std::future<Result> result;
 
+    [[nodiscard]] bool is_ready() const {
+        return result.valid() &&
+            result.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+    }
+
     bool request_stop() noexcept {
         return worker.request_stop();
     }
 
     void join() {
-        worker.join();
+        if (worker.joinable()) {
+            worker.join();
+        }
     }
 
     decltype(auto) get() {
         return result.get();
     }
+};
+
+export template <typename Result>
+struct AsyncTask {
+    std::future<Result> result;
+
+    [[nodiscard]] bool is_ready() const {
+        return result.valid() &&
+            result.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+    }
+
+    bool request_stop() noexcept { return false; }
+    decltype(auto) get() { return result.get(); }
 };
 
 export struct MultiThreadPolicy {
@@ -101,10 +161,13 @@ private:
 export struct AsyncPolicy {
     template <typename Function, typename... Args>
     [[nodiscard]] auto execute(Function&& function, Args&&... args) const {
-        return std::async(
-            std::launch::async,
-            std::forward<Function>(function),
-            std::forward<Args>(args)...);
+        using Result = std::invoke_result_t<std::decay_t<Function>, std::decay_t<Args>...>;
+        return AsyncTask<Result>{
+            std::async(
+                std::launch::async,
+                std::forward<Function>(function),
+                std::forward<Args>(args)...)
+        };
     }
 };
 
@@ -164,6 +227,8 @@ export struct RemoteTaskPolicy {
 };
 
 export using TaskPolicy = LocalThreadPolicy;
+export using DefaultTaskPolicy = LocalThreadPolicy;
+export using DefaultErrorPolicy = RethrowErrorPolicy;
 
 export template <typename Policy, typename... Args>
 concept TaskExecutionPolicy = requires(
@@ -172,21 +237,31 @@ concept TaskExecutionPolicy = requires(
     policy.execute(std::forward<Args>(args)...);
 };
 
-export template <typename Policy = TaskPolicy>
-class TaskExecutor {
+export template <
+    typename ExecPolicy = DefaultTaskPolicy,
+    ErrorHandlingPolicy ErrPolicy = DefaultErrorPolicy>
+class TaskExecutor : public ExecPolicy, private ErrPolicy {
 public:
+    constexpr TaskExecutor() = default;
+
+    constexpr explicit TaskExecutor(ExecPolicy exec, ErrPolicy err = {})
+        : ExecPolicy(std::move(exec)), ErrPolicy(std::move(err)) {}
+
+    using ExecPolicy::execute;
+
     template <typename Function, typename... Args>
-        requires TaskExecutionPolicy<Policy, Function, Args...>
-    decltype(auto) execute(Function&& function, Args&&... args) const {
-        return policy_.execute(
-            std::forward<Function>(function),
-            std::forward<Args>(args)...);
+        requires ExecutionPolicy<ExecPolicy, Function, Args...>
+    decltype(auto) run(Function&& function, Args&&... args) const {
+        try {
+            return ExecPolicy::execute(
+                std::forward<Function>(function),
+                std::forward<Args>(args)...);
+        } catch (...) {
+            ErrPolicy::handle_exception();
+        }
     }
 
-    const Policy& policy() const noexcept {
-        return policy_;
+    [[nodiscard]] const ExecPolicy& policy() const noexcept {
+        return *this;
     }
-
-private:
-    Policy policy_{};
 };

@@ -7,11 +7,11 @@ import EventType;
 export class LoggingComponent final : public Component<> {
 public:
     explicit LoggingComponent(DataBus& bus, std::filesystem::path logFilePath)
-        : bus_(bus), logFilePath_(std::move(logFilePath)) {}
+        : Component<>(bus), logFilePath_(std::move(logFilePath)) {}
 
     ~LoggingComponent() override {
         if (running_) {
-            bus_.unsubscribe<LogEntry>(SubscriptionId);
+            this->bus_.template unsubscribe<LogEntry>(SubscriptionId);
         }
     }
 
@@ -28,7 +28,7 @@ public:
             }
         }
 
-        bus_.subscribe<LogEntry>(
+        this->bus_.template subscribe<LogEntry>(
             SubscriptionId,
             [this](const LogEntry& entry) { write(entry); });
         running_ = true;
@@ -39,7 +39,7 @@ public:
             return;
         }
 
-        bus_.unsubscribe<LogEntry>(SubscriptionId);
+        this->bus_.template unsubscribe<LogEntry>(SubscriptionId);
         running_ = false;
 
         std::lock_guard lock(writeMutex_);
@@ -83,7 +83,6 @@ private:
         }
     }
 
-    DataBus& bus_;
     std::filesystem::path logFilePath_;
     std::ofstream logFile_;
     std::mutex writeMutex_;
