@@ -1,0 +1,46 @@
+--- Cleaning old install ---
+--- Configuring, Building, and Installing (Ninja) ---
+Executing workflow step 1 of 3: configure preset "linux-dev"
+
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/boopy/dev/Projects/BusSystem/build/linux-dev
+
+Executing workflow step 2 of 3: build preset "dev-build"
+
+[1/25] Generating CXX dyndep file 'src/CMakeFiles/@cmake_cxx_std@synth_0.dir/CXX.dd'
+[2/24] Generating CXX dyndep file src/CMakeFiles/DesignedSystem.dir/CXX.dd
+[3/5] Building CXX object src/CMakeFiles/DesignedSystem.dir/modules/Components/DatabaseComponent.cppm.o
+FAILED: [code=1] src/CMakeFiles/DesignedSystem.dir/modules/Components/DatabaseComponent.cppm.o src/CMakeFiles/DesignedSystem.dir/DatabaseComponent.gcm 
+/usr/bin/c++  -I/home/boopy/dev/Projects/BusSystem/src/include -g -std=c++26 -MD -MT src/CMakeFiles/DesignedSystem.dir/modules/Components/DatabaseComponent.cppm.o -MF src/CMakeFiles/DesignedSystem.dir/modules/Components/DatabaseComponent.cppm.o.d -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Components/DatabaseComponent.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Components/DatabaseComponent.cppm.o -c /home/boopy/dev/Projects/BusSystem/src/modules/Components/DatabaseComponent.cppm
+/home/boopy/dev/Projects/BusSystem/src/modules/Components/DatabaseComponent.cppm:420:1: error: expected declaration before ‘}’ token
+  420 | } void clearValues() {
+      | ^
+/home/boopy/dev/Projects/BusSystem/src/modules/Components/DatabaseComponent.cppm: In function ‘void clearValues()’:
+/home/boopy/dev/Projects/BusSystem/src/modules/Components/DatabaseComponent.cppm:421:3: error: ‘transactionParams_’ was not declared in this scope
+  421 |   transactionParams_ = pqxx::params{};
+      |   ^~~~~~~~~~~~~~~~~~
+/home/boopy/dev/Projects/BusSystem/src/modules/Components/DatabaseComponent.cppm:422:8: error: ‘transactionArgs_’ was not declared in this scope
+  422 |   if (!transactionArgs_.empty()) {
+      |        ^~~~~~~~~~~~~~~~
+/home/boopy/dev/Projects/BusSystem/src/modules/Components/DatabaseComponent.cppm:425:3: error: ‘valCount_’ was not declared in this scope
+  425 |   valCount_ = 0;
+      |   ^~~~~~~~~
+/home/boopy/dev/Projects/BusSystem/src/modules/Components/DatabaseComponent.cppm: In function ‘void publishTxStatus(DatabaseTx@EventType::Mode, DatabaseTx@EventType::Status, uint64_t)’:
+/home/boopy/dev/Projects/BusSystem/src/modules/Components/DatabaseComponent.cppm:429:7: error: invalid use of ‘this’ in non-member function
+  429 |   if (this->bus_.template subscriberCount() == 0) {
+      |       ^~~~
+/home/boopy/dev/Projects/BusSystem/src/modules/Components/DatabaseComponent.cppm:433:5: error: invalid use of ‘this’ in non-member function
+  433 |     this->bus_.publish(
+      |     ^~~~
+/home/boopy/dev/Projects/BusSystem/src/modules/Components/DatabaseComponent.cppm: At global scope:
+/home/boopy/dev/Projects/BusSystem/src/modules/Components/DatabaseComponent.cppm:442:1: error: ‘QueryResult’ does not name a type
+  442 | QueryResult run(DatabaseTx::Mode mode, pqxx::zview sql,
+      | ^~~~~~~~~~~
+/home/boopy/dev/Projects/BusSystem/src/modules/Components/DatabaseComponent.cppm:496:1: error: expected unqualified-id before ‘public’
+  496 | public:
+      | ^~~~~~
+/home/boopy/dev/Projects/BusSystem/src/modules/Components/DatabaseComponent.cppm:498:1: error: expected declaration before ‘}’ token
+  498 | }
+      | ^
+ninja: build stopped: subcommand failed.
