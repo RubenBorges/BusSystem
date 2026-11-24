@@ -190,4 +190,5 @@ private:
     std::unordered_map<std::type_index, std::vector<std::shared_ptr<Subscriber>>> subscribers_;
     std::unordered_map<std::type_index, std::function<std::any(const std::any&)>> providers_;
     ErrorHandler errorHandler_;
+
 };
