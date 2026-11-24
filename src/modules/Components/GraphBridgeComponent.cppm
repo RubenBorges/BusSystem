@@ -6,9 +6,9 @@
 * Connective Architecture should approach the following intended design:
 *
 *  \\==========\\     \\======\\            LOCAL                         REMOTE           \\======\\     \\==========\\
-*  \\ComponentC\\ <== \\=Data=\\    \\================\\      =>   \\================\\    \\=Data=\\ ==> \\ComponentZ\\
+*  \\ComponentC\\ <== \\=Data=\\    \\================\\<=       =>\\================\\    \\=Data=\\ ==> \\ComponentZ\\
 *  \\ComponentB\\<===>\\==Bus=\\<==>\\GraphBridgeComp1\\<=Channel=>\\GraphBridgeComp2\\<==>\\==Bus=\\<===>\\ComponentY\\
-*  \\ComponentA\\ ==> \\===1==\\    \\================\\     <=    \\================\\    \\==2===\\ <== \\ComponentX\\
+*  \\ComponentA\\ ==> \\===1==\\    \\================\\=>       <=\\================\\    \\==2===\\ <== \\ComponentX\\
 *  \\==========\\     \\======\\                                                           \\======\\     \\==========\\        
 *        1)               2)                3)                4)
 *
