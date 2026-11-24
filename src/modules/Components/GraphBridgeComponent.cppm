@@ -4,11 +4,18 @@
 * they can both use to propogate data and execution across the Databus processes.
 * 
 * Connective Architecture should approach the following intended design:
-*  \\==========\\     \\======\\                                                           \\======\\     \\==========\\                         \\==========\\
-*  \\ComponentC\\<=>  \\=Data=\\    \\================\\           \\================\\    \\=Data=\\  <=>\\ComponentZ\\
+*
+*  \\==========\\     \\======\\            LOCAL                         REMOTE           \\======\\     \\==========\\
+*  \\ComponentC\\ <== \\=Data=\\    \\================\\      =>   \\================\\    \\=Data=\\ ==> \\ComponentZ\\
 *  \\ComponentB\\<===>\\==Bus=\\<==>\\GraphBridgeComp1\\<=Channel=>\\GraphBridgeComp2\\<==>\\==Bus=\\<===>\\ComponentY\\
-*  \\ComponentA\\<=>  \\===1==\\    \\================\\           \\================\\    \\==2===\\  <=>\\ComponentX\\
+*  \\ComponentA\\ ==> \\===1==\\    \\================\\     <=    \\================\\    \\==2===\\ <== \\ComponentX\\
 *  \\==========\\     \\======\\                                                           \\======\\     \\==========\\        
+*        1)               2)                3)                4)
+*
+ *  1) Components access the local DataBus as subscribers and publishers.
+ *  2) DataBus facilitates local data/message sharing and cross-component execution.
+ *  3) GraphBridgeComponent acts as the local DataBus's outward-facing gateway to remote nodes.
+ *  4) Bidirectional Channel bridges two GraphBridgeComponents, extending DataBus systems across process/network boundaries
 */
 
 export module GraphBridgeComponent;
