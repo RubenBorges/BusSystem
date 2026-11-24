@@ -15,12 +15,16 @@ The project is built and tested on Linux with GCC 16.2.1, CMake 3.30 or newer,
 and Ninja. The compiler and its standard library must support C++26 modules and
 `import std;`; many distributions' default GCC versions may be too old.
 
-Required development tools and libraries:
+**Required development TOOLS and LIBRARIES**
 
+Tools:
 - GCC/G++ with C++26 and `import std;` support
-- CMake 3.30+
-- Ninja
-- Bash and `pkg-config`
+- CMake 3.30+ (for modern features)
+- Ninja (for modules)
+- Bash
+- `pkg-config` (for cmakelists.txt library targeting)
+
+Libraries:
 - Boost headers and Boost.System (Asio and Beast)
 - websocketpp
 - OpenSSL
@@ -36,10 +40,24 @@ sudo apt install build-essential cmake ninja-build pkg-config \
   libpq-dev libpqxx-dev
 ```
 
-Install or select a sufficiently recent GCC separately if the distribution's
-`build-essential` package does not provide the required C++26 standard library.
-For example, if `g++-16` is installed and provides `import std`, build with
-`CXX=g++-16 ./autobuild.sh`.
+On Arch Linux, install the equivalent packages with:
+
+```sh
+sudo pacman -Syu --needed base-devel gcc cmake ninja pkgconf \
+  boost boost-libs websocketpp openssl postgresql-libs libpqxx
+```
+
+`postgresql-libs` supplies the client library required to build. Install the
+`postgresql` package separately only if you also want a local PostgreSQL
+server; the executable can connect to a server configured through
+`DESIGNED_SYSTEM_DSN`.
+
+Install or select a sufficiently recent GCC separately if your distribution's
+default toolchain does not provide the required C++26 standard library. For
+example, if `g++-16` is installed and provides `import std`, use
+`CXX=g++-16 ./autobuild.sh` for the first configuration. If the preset was
+already configured with another compiler, use a fresh `build/linux-dev`
+directory before switching.
 
 The current CMake configuration expects libpqxx at
 `/usr/lib/libpqxx.so` with headers under `/usr/include`. Some distributions use
@@ -66,7 +84,7 @@ cmake --build --preset dev-build
 cmake --build --preset dev-install
 ```
 
-The uninstalled executable is at `build/linux-dev/src/DesignedSystem`.
+The pre-installed executable is at `build/linux-dev/src/DesignedSystem`.
 
 ## Usage
 
