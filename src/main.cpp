@@ -17,7 +17,7 @@ std::string connectionString() {
     if (const char* dsn = std::getenv("DESIGNED_SYSTEM_DSN"); dsn && *dsn) {
         return dsn;
     }
-    return "dbname=postgres user=postgres hostaddr=localhost port=5432";
+    return "dbname=postgres user=postgres hostaddr=127.0.0.1 port=5432";
 }
 
 void ensureDemoTable(std::string_view dsn) {
