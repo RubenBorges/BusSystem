@@ -250,7 +250,6 @@ export using Channel = std::variant<
 export class Process {
 public:
     using DataHandler = std::function<void(const GraphFrame&)>;
-
     ID identity;
 
 private:
@@ -277,7 +276,7 @@ public:
     bool isWaveCompleted(WaveID waveID) const;
     bool isWaveCleaned(WaveID waveID) const;
     bool isProcessKnown(ID id) const;
-    void position(ID id, std::vector<Edge> neighbours);
+    void position(ID id, const std::vector<Edge>& neighbours); //Altered neighbours parameter from value to const&
     void receive(GraphFrame frame);
     void registerChannel(ID neighbourID, Channel channelImplementation);
     void addChild(ID childID);

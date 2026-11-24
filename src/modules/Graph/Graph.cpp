@@ -102,7 +102,8 @@ bool Process::isWaveCleaned(WaveID waveID) const {
   return cleanedWaves.contains(waveID);
 }
 
-void Process::position(ID id, std::vector<Edge> neighbours) {
+//Altered neighbours parameter from value to const&
+void Process::position(ID id, const std::vector<Edge>& neighbours) {
   if (neighbours.size() > std::numeric_limits<ID>::max()) {throw std::length_error("POSITION contains too many edges");}
 
   bool changed = false;
@@ -141,7 +142,6 @@ void Process::position(ID id, std::vector<Edge> neighbours) {
     );
   }
 }
-
 bool Process::isProcessKnown(ID id) const {
   return std::find(knownProcesses.begin(), knownProcesses.end(), id) != knownProcesses.end();
 }
