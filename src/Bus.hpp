@@ -1,124 +1,21 @@
 #pragma once
 
-#include <iostream>
-#include <fstream>
-#include <print>
-#include <format>
-#include <chrono>
-
-// Containers
-#include <random>
-#include <vector>
-#include <array>
-#include <list>
-#include <unordered_map>
-#include <unordered_set>
-#include <random>
-#include <functional>
-#include <ranges>
-#include <expected>
-#include <optional>
 #include <algorithm>
-#include <utility>
-#include <memory>
-#include <tuple>
-#include <type_traits>
+#include <any>
+#include <functional>
+#include <stdexcept>
 #include <string>
 #include <string_view>
-#include <any>
-#include <stdexcept>
 #include <typeindex>
-#include <Policies.hpp>
-//--------------------------------
-
-// Each MessageBus channel stores subscribers for exactly one message type.
-template <typename MessageT,
-          template <typename> class Container = VectorPolicy,
-          typename SubscriptionPolicyT = NoopSubscriptionPolicy>
-class MessageBus {
-private:
-    // A subscriber stores both its identifying string and callback.
-    struct Subscriber_T {
-        std::string identifier;
-        std::function<void(const MessageT&)> callback;
-    };
-
-    // The storage policy owns the collection of subscribers for this message type.
-    Container<Subscriber_T> subscribers;
-
-    // The subscription policy owns lifecycle behavior such as logging or registration.
-    SubscriptionPolicyT subscriptionPolicy;
-
-public:
-    static_assert(std::is_base_of_v<SubscriptionPolicy, SubscriptionPolicyT>,
-                  "SubscriptionPolicyT must derive from SubscriptionPolicy");
-
-    void subscribe(std::string_view identifier,
-                   std::function<void(const MessageT&)> callback) {
-        // Copy the identifier so it remains valid after the caller's string is destroyed.
-        subscribers.add(Subscriber_T{std::string{identifier}, std::move(callback)});
-        // Run lifecycle behavior with the exact subscriber identifier.
-        subscriptionPolicy.subscribe(identifier);
-    }
-
-    void unsubscribe(std::string_view identifier) {
-        // Remove only subscribers that use this exact identifying string.
-        subscribers.remove_if([identifier](const Subscriber_T& subscriber) {
-            return subscriber.identifier == identifier;
-        });
-        // Run lifecycle behavior with the exact subscriber identifier.
-        subscriptionPolicy.unsubscribe(identifier);
-    }
-
-    void publish(const MessageT& message) {
-        // Deliver the message to every subscriber stored in this channel.
-        subscribers.for_each([&](const Subscriber_T& subscriber) {
-            subscriber.callback(message);
-        });
-    }
-};
-
-// MultiMessageBus uses one MessageBus channel for each distinct message type.
-template <typename... MessageTs>
-class MultiMessageBus {
-private:
-    // A tuple avoids storing unrelated subscriber types in the same container.
-    std::tuple<MessageBus<MessageTs, VectorPolicy, NoopSubscriptionPolicy>...> channels;
-
-public:
-    template <typename MessageT>
-    MessageBus<MessageT, VectorPolicy, NoopSubscriptionPolicy>& channel() {
-        // std::get finds the channel whose message type exactly matches MessageT.
-        return std::get<MessageBus<MessageT, VectorPolicy, NoopSubscriptionPolicy>>(channels);
-    }
-
-    template <typename MessageT>
-    void subscribe(std::string_view identifier,
-                   std::function<void(const MessageT&)> subscriber) {
-        // The selected channel owns named subscribers for this exact message type.
-        channel<MessageT>().subscribe(identifier, std::move(subscriber));
-    }
-
-    template <typename MessageT>
-    void unsubscribe(std::string_view identifier) {
-        // Remove a named subscription from the channel for this exact message type.
-        channel<MessageT>().unsubscribe(identifier);
-    }
-
-    template <typename MessageT>
-    void publish(const MessageT& message) {
-        // Publish only to subscribers registered for this exact message type.
-        channel<MessageT>().publish(message);
-    }
-};
-
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 class DataBus {
 public:
     // Subscribe to every published event of exactly one Event type.
     template <typename Event>
-    void subscribe(std::string_view identifier,
-                   std::function<void(const Event&)> callback) {
+    void subscribe(std::string_view identifier,std::function<void(const Event&)> callback) {
         subscribers_[typeid(Event)].push_back(
             NamedSubscriber{
                 std::string{identifier},
@@ -136,17 +33,14 @@ public:
             return;
         }
 
-        std::erase_if(found->second,
-            [identifier](const NamedSubscriber& subscriber) {
+        std::erase_if(found->second,[identifier](const NamedSubscriber& subscriber) {
                 return subscriber.identifier == identifier;
             });
     }
 
     // Remove a provider for one Request type.
     template <typename Request>
-    void unprovide() {
-        providers_.erase(typeid(Request));
-    }
+    void unprovide() {providers_.erase(typeid(Request));}
 
     // Publish an event to all subscribers registered for this Event type.
     template <typename Event>
@@ -191,14 +85,10 @@ private:
     };
 
     // Event callbacks are erased after their Event type is used as the map key.
-    std::unordered_map<
-        std::type_index,
-        std::vector<NamedSubscriber>> subscribers_;
+    std::unordered_map<std::type_index,std::vector<NamedSubscriber>> subscribers_;
 
     // Providers are keyed by request type and return type-erased responses.
-    std::unordered_map<
-        std::type_index,
-        std::function<std::any(const std::any&)>> providers_;
+    std::unordered_map<std::type_index,std::function<std::any(const std::any&)>> providers_;
 };
 
 

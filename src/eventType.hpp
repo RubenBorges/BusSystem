@@ -1,7 +1,11 @@
 #pragma once
+
+#include <atomic>
+#include <cassert>
+#include <variant>
+#include <stdexcept>
 #include <string>
 // Event sent by the sensor component.
-struct Event{};
 struct TemperatureUpdated {
     float celsius;
 };
@@ -15,4 +19,14 @@ struct GetSystemHealth {
 struct HealthReport {
     bool ok;
     std::string status;
+};
+
+
+struct DatabaseTx {
+    enum class Mode   { Read, Write };
+    enum class Status { Waiting, Fail, Success };
+
+    Mode mode;
+    Status status{Status::Waiting};
+    std::variant<std::string,std::uint64_t> pgXid;
 };

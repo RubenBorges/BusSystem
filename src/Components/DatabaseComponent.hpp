@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <expected>
 #include <filesystem>
 #include <format>
@@ -47,8 +48,10 @@ class DatabaseComponent : public Component {
 public:
     txnState transactionState{txnState::invalid};
 
-    explicit DatabaseComponent(DataBus& bus,std::string connectionString = "dbname=postgres user=postgres hostaddr=localhost port=5432")
-        : bus_(bus), connStr_(std::move(connectionString)) {currentTransaction_.reserve(512);}
+    explicit DatabaseComponent(DataBus& bus, std::string connectionString = "dbname=postgres user=postgres hostaddr=localhost port=5432")
+        : bus_(bus), connStr_(std::move(connectionString)) {
+        currentTransaction_.reserve(512);
+    }
 
     explicit DatabaseComponent(DataBus& bus, const std::filesystem::path& configFile)
         : DatabaseComponent(bus, resolveConnectionString(configFile)) {}
@@ -120,13 +123,23 @@ public:
     // --- Execution ---
 
     int processTransaction() {
-        return (transactionState == txnState::valid) ? executeParams(transactionParams_) : 1;
+        if (transactionState != txnState::valid) {
+            publishTxStatus(DatabaseTx::Mode::Write, DatabaseTx::Status::Fail, 0);
+            return 1;
+        }
+        return executeParams(transactionParams_, DatabaseTx::Mode::Write);
     }
 
     template <typename... Args>
     int writeToDB(Args&&... args) {
         pqxx::params params{std::forward<Args>(args)...};
-        return executeParams(params);
+        return executeParams(params, DatabaseTx::Mode::Write);
+    }
+
+    template <typename... Args>
+    int readFromDB(Args&&... args) {
+        pqxx::params params{std::forward<Args>(args)...};
+        return executeParams(params, DatabaseTx::Mode::Read);
     }
 
 private:
@@ -156,25 +169,58 @@ private:
         ++valCount_;
     }
 
-    int executeParams(const pqxx::params& params) {
+    void publishTxStatus(DatabaseTx::Mode mode,
+                         DatabaseTx::Status status,
+                         std::uint64_t pgXid) {
+        bus_.publish(DatabaseTx{
+            .mode = mode,
+            .status = status,
+            .pgXid = pgXid
+        });
+    }
+
+    int executeParams(const pqxx::params& params, DatabaseTx::Mode mode) {
         if (!conn_ || !conn_->is_open()) {
             std::println(stderr, "Database connection is not open.");
+            publishTxStatus(mode, DatabaseTx::Status::Fail, 0);
             return 1;
         }
 
         if (currentTransaction_.empty()) {
             std::println(stderr, "No transaction SQL scaffolding set.");
+            publishTxStatus(mode, DatabaseTx::Status::Fail, 0);
             return 1;
         }
 
+        std::uint64_t pgXid = 0;
+
         try {
-            pqxx::work txn(*conn_);
-            txn.exec(currentTransaction_, params);
-            txn.commit();
+            if (mode == DatabaseTx::Mode::Write) {
+                pqxx::work txn(*conn_);
+
+                // Allocate and retrieve the real 64-bit Postgres transaction ID (xid8)
+                // Note: Use "SELECT txid_current()" if running PostgreSQL 12 or older
+                pgXid = txn.query_value<std::uint64_t>("SELECT pg_current_xact_id()::text::bigint");
+
+                publishTxStatus(mode, DatabaseTx::Status::Waiting, pgXid);
+
+                txn.exec(currentTransaction_, params);
+                txn.commit();
+            } else {
+                // Read-only transactions use virtual XIDs (pgXid stays 0 to avoid XID burn)
+                publishTxStatus(mode, DatabaseTx::Status::Waiting, 0);
+
+                pqxx::read_transaction txn(*conn_);
+                txn.exec(currentTransaction_, params);
+                txn.commit();
+            }
+
             resetTransactionState();
+            publishTxStatus(mode, DatabaseTx::Status::Success, pgXid);
             return 0;
         } catch (const std::exception& e) {
-            std::println(stderr, "Database error: {}", e.what());
+            std::println(stderr, "Database error (XID {}): {}", pgXid, e.what());
+            publishTxStatus(mode, DatabaseTx::Status::Fail, pgXid);
             return 1;
         }
     }

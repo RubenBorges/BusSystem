@@ -1,5 +1,6 @@
 #include <eventType.hpp>
 #include <iostream>
+#include <random>
 #include <Components.hpp>
 
     void SensorComponent::start()  {

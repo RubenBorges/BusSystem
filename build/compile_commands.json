@@ -1,0 +1,14 @@
+[
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/src",
+  "command": "/usr/bin/c++ -DPQXX_SHARED -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/Components -I/home/boopy/dev/Projects/DesignedSystem/src/Policies -I/home/boopy/dev/Projects/DesignedSystem/src/misc -std=c++26 -o CMakeFiles/DesignedSystem.dir/main.cpp.o -c /home/boopy/dev/Projects/DesignedSystem/src/main.cpp",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/main.cpp",
+  "output": "src/CMakeFiles/DesignedSystem.dir/main.cpp.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/src",
+  "command": "/usr/bin/c++ -DPQXX_SHARED -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/Components -I/home/boopy/dev/Projects/DesignedSystem/src/Policies -I/home/boopy/dev/Projects/DesignedSystem/src/misc -std=c++26 -o CMakeFiles/DesignedSystem.dir/Components/Components.cpp.o -c /home/boopy/dev/Projects/DesignedSystem/src/Components/Components.cpp",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/Components/Components.cpp",
+  "output": "src/CMakeFiles/DesignedSystem.dir/Components/Components.cpp.o"
+}
+]

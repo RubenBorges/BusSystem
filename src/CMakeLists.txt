@@ -34,4 +34,3 @@ target_link_libraries(DesignedSystem PRIVATE
         Threads::Threads
         libpqxx::pqxx
 )
-install(TARGETS DesignedSystem DESTINATION bin)
