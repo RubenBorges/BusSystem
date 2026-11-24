@@ -1,0 +1,20 @@
+{
+"rules": [
+{
+"primary-output": "src/CMakeFiles/DesignedSystem.dir/modules/Events/EventType.cppm.o",
+"provides": [
+{
+"logical-name": "EventType",
+"is-interface": true
+}
+],
+"requires": [
+{
+"logical-name": "std"
+}
+]
+}
+],
+"version": 0,
+"revision": 0
+}

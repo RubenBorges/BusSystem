@@ -23,6 +23,14 @@ add_executable(DesignedSystem
     modules/Graph/Wire.cpp
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set_source_files_properties(
+        modules/Graph/Graph.cppm
+        modules/Graph/WebSocketConnection.cpp
+        PROPERTIES COMPILE_OPTIONS "-fno-gnu-unique"
+    )
+endif()
+
 target_sources(DesignedSystem
     PRIVATE
         FILE_SET CXX_MODULES

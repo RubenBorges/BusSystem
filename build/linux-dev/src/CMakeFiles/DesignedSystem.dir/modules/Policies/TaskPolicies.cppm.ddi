@@ -1,0 +1,24 @@
+{
+"rules": [
+{
+"primary-output": "src/CMakeFiles/DesignedSystem.dir/modules/Policies/TaskPolicies.cppm.o",
+"provides": [
+{
+"logical-name": "TaskPolicies",
+"is-interface": true
+}
+],
+"requires": [
+{
+"logical-name": "Graph"
+}
+,
+{
+"logical-name": "std"
+}
+]
+}
+],
+"version": 0,
+"revision": 0
+}

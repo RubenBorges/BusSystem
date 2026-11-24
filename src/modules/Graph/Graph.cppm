@@ -249,6 +249,8 @@ export using Channel = std::variant<
 
 export class Process {
 public:
+    using DataHandler = std::function<void(const GraphFrame&)>;
+
     ID identity;
 
 private:
@@ -261,12 +263,15 @@ private:
     std::set<WaveID> activeWaves;
     std::set<WaveID> completedWaves;
     std::set<WaveID> cleanedWaves;
+    DataHandler dataHandler_;
 
 public:
     Process() = delete;
     explicit Process(ID id);
     ~Process() = default;
 
+    [[nodiscard]] bool isRoot() const noexcept { return !parent.has_value(); }
+    void setDataHandler(DataHandler handler);
     void start(GraphFrame frame);
     void pollChannels();
     bool isWaveCompleted(WaveID waveID) const;

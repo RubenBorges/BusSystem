@@ -1,0 +1,140 @@
+[
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/main.cpp.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/main.cpp.o -c /home/boopy/dev/Projects/DesignedSystem/src/main.cpp",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/main.cpp",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/main.cpp.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Components/Components.cpp.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Components/Components.cpp.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Components/Components.cpp",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Components/Components.cpp",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Components/Components.cpp.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Graph/CentralCoordinatorIDGen.cpp.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Graph/CentralCoordinatorIDGen.cpp.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/CentralCoordinatorIDGen.cpp",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/CentralCoordinatorIDGen.cpp",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Graph/CentralCoordinatorIDGen.cpp.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Graph/Process.cpp.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Graph/Process.cpp.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/Process.cpp",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/Process.cpp",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Graph/Process.cpp.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fno-gnu-unique -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Graph/WebSocketConnection.cpp.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Graph/WebSocketConnection.cpp.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/WebSocketConnection.cpp",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/WebSocketConnection.cpp",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Graph/WebSocketConnection.cpp.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Graph/Wire.cpp.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Graph/Wire.cpp.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/Wire.cpp",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/Wire.cpp",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Graph/Wire.cpp.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Databus/DataBus.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Databus/DataBus.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Databus/DataBus.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Databus/DataBus.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Databus/DataBus.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Events/EventType.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Events/EventType.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Events/EventType.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Events/EventType.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Events/EventType.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Components/Components.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Components/Components.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Components/Components.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Components/Components.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Components/Components.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Components/DatabaseComponent.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Components/DatabaseComponent.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Components/DatabaseComponent.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Components/DatabaseComponent.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Components/DatabaseComponent.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Components/LoggingComponent.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Components/LoggingComponent.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Components/LoggingComponent.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Components/LoggingComponent.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Components/LoggingComponent.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Components/NotifyingComponent.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Components/NotifyingComponent.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Components/NotifyingComponent.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Components/NotifyingComponent.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Components/NotifyingComponent.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Policies/SubscriptionPolicies.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Policies/SubscriptionPolicies.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Policies/SubscriptionPolicies.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Policies/SubscriptionPolicies.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Policies/SubscriptionPolicies.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Policies/StoragePolicies.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Policies/StoragePolicies.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Policies/StoragePolicies.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Policies/StoragePolicies.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Policies/StoragePolicies.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Policies/TaskPolicies.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Policies/TaskPolicies.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Policies/TaskPolicies.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Policies/TaskPolicies.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Policies/TaskPolicies.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Policies/Policies.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Policies/Policies.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Policies/Policies.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Policies/Policies.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Policies/Policies.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/MessageBus/MessageBus.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/MessageBus/MessageBus.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/MessageBus/MessageBus.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/MessageBus/MessageBus.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/MessageBus/MessageBus.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/MessageBus/MultiMessageBus.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/MessageBus/MultiMessageBus.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/MessageBus/MultiMessageBus.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/MessageBus/MultiMessageBus.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/MessageBus/MultiMessageBus.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/UtilitiesQL.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/UtilitiesQL.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/UtilitiesQL.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/UtilitiesQL.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/UtilitiesQL.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/pqxx.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/pqxx.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/pqxx.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/pqxx.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/pqxx.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -I/home/boopy/dev/Projects/DesignedSystem/src -I/home/boopy/dev/Projects/DesignedSystem/src/modules -I/home/boopy/dev/Projects/DesignedSystem/src/misc -g -std=c++26 -fno-gnu-unique -fmodules-ts -fmodule-mapper=src/CMakeFiles/DesignedSystem.dir/modules/Graph/Graph.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/DesignedSystem.dir/modules/Graph/Graph.cppm.o -c /home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/Graph.cppm",
+  "file": "/home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/Graph.cppm",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/modules/Graph/Graph.cppm.o"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -g -std=c++26 -fmodule-only -fmodules-ts -fmodule-mapper=src/CMakeFiles/@cmake_cxx_std@synth_0.dir/70b2301d7307.bmi.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/@cmake_cxx_std@synth_0.dir/70b2301d7307.bmi -c /usr/include/c++/16/bits/std.cc",
+  "file": "/usr/include/c++/16/bits/std.cc",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/@cmake_cxx_std@synth_0.dir/70b2301d7307.bmi"
+},
+{
+  "directory": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+  "command": "/usr/bin/c++ -g -std=c++26 -fmodule-only -fmodules-ts -fmodule-mapper=src/CMakeFiles/@cmake_cxx_std@synth_0.dir/f6733e1179a8.bmi.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/@cmake_cxx_std@synth_0.dir/f6733e1179a8.bmi -c /usr/include/c++/16/bits/std.compat.cc",
+  "file": "/usr/include/c++/16/bits/std.compat.cc",
+  "output": "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/@cmake_cxx_std@synth_0.dir/f6733e1179a8.bmi"
+}
+]

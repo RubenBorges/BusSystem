@@ -1,0 +1,32 @@
+{
+"rules": [
+{
+"primary-output": "src/CMakeFiles/DesignedSystem.dir/modules/Components/Components.cppm.o",
+"provides": [
+{
+"logical-name": "Components",
+"is-interface": true
+}
+],
+"requires": [
+{
+"logical-name": "TaskPolicies"
+}
+,
+{
+"logical-name": "DataBus"
+}
+,
+{
+"logical-name": "EventType"
+}
+,
+{
+"logical-name": "std"
+}
+]
+}
+],
+"version": 0,
+"revision": 0
+}

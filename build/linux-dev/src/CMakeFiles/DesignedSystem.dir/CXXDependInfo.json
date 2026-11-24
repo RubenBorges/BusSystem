@@ -1,0 +1,368 @@
+{
+	"bmi-installation" : 
+	{
+		"destination" : ".",
+		"message-level" : "",
+		"permissions" : "",
+		"script-location" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/install-cxx-module-bmi-Debug.cmake"
+	},
+	"compiler-frontend-variant" : "GNU",
+	"compiler-id" : "GNU",
+	"compiler-simulate-id" : "",
+	"config" : "Debug",
+	"cxx-modules" : 
+	{
+		"src/CMakeFiles/DesignedSystem.dir/modules/Components/Components.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "Components",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Components/Components.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Components/DatabaseComponent.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "Components",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Components/DatabaseComponent.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Components/LoggingComponent.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "Components",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Components/LoggingComponent.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Components/NotifyingComponent.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "Components",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Components/NotifyingComponent.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Databus/DataBus.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "Databus",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Databus/DataBus.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Events/EventType.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "Events",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Events/EventType.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Graph/Graph.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "Graph",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/Graph.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/MessageBus/MessageBus.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "MessageBus",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/MessageBus/MessageBus.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/MessageBus/MultiMessageBus.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "MessageBus",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/MessageBus/MultiMessageBus.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Policies/Policies.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "Policies",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Policies/Policies.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Policies/StoragePolicies.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "Policies",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Policies/StoragePolicies.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Policies/SubscriptionPolicies.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "Policies",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Policies/SubscriptionPolicies.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Policies/TaskPolicies.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "Policies",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Policies/TaskPolicies.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/UtilitiesQL.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/UtilitiesQL.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/pqxx.cppm.o" : 
+		{
+			"bmi-only" : false,
+			"compile-features" : [],
+			"compile-options" : [],
+			"definitions" : [],
+			"destination" : null,
+			"include-directories" : 
+			[
+				"/home/boopy/dev/Projects/DesignedSystem/src",
+				"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+				"/home/boopy/dev/Projects/DesignedSystem/src/misc",
+				"/usr/include"
+			],
+			"name" : "CXX_MODULES",
+			"relative-directory" : "",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/pqxx.cppm",
+			"type" : "CXX_MODULES",
+			"visibility" : "PRIVATE"
+		}
+	},
+	"database-info" : null,
+	"dir-cur-bld" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src",
+	"dir-cur-src" : "/home/boopy/dev/Projects/DesignedSystem/src",
+	"dir-top-bld" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev",
+	"dir-top-src" : "/home/boopy/dev/Projects/DesignedSystem",
+	"exports" : [],
+	"forward-modules-from-target-dirs" : [],
+	"include-dirs" : 
+	[
+		"/home/boopy/dev/Projects/DesignedSystem/src",
+		"/home/boopy/dev/Projects/DesignedSystem/src/modules",
+		"/home/boopy/dev/Projects/DesignedSystem/src/misc"
+	],
+	"language" : "CXX",
+	"linked-target-dirs" : 
+	[
+		"/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/@cmake_cxx_std@synth_0.dir"
+	],
+	"module-dir" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir",
+	"sources" : 
+	{
+		"src/CMakeFiles/DesignedSystem.dir/main.cpp.o" : 
+		{
+			"language" : "CXX",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/main.cpp"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Components/Components.cpp.o" : 
+		{
+			"language" : "CXX",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Components/Components.cpp"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Graph/CentralCoordinatorIDGen.cpp.o" : 
+		{
+			"language" : "CXX",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/CentralCoordinatorIDGen.cpp"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Graph/Process.cpp.o" : 
+		{
+			"language" : "CXX",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/Process.cpp"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Graph/WebSocketConnection.cpp.o" : 
+		{
+			"language" : "CXX",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/WebSocketConnection.cpp"
+		},
+		"src/CMakeFiles/DesignedSystem.dir/modules/Graph/Wire.cpp.o" : 
+		{
+			"language" : "CXX",
+			"source" : "/home/boopy/dev/Projects/DesignedSystem/src/modules/Graph/Wire.cpp"
+		}
+	}
+}

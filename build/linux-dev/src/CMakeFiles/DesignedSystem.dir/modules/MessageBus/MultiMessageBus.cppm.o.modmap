@@ -1,0 +1,4 @@
+$root .
+MultiMessageBus src/CMakeFiles/DesignedSystem.dir/MultiMessageBus.gcm
+std src/CMakeFiles/@cmake_cxx_std@synth_0.dir/70b2301d7307.bmi
+MessageBus src/CMakeFiles/DesignedSystem.dir/MessageBus.gcm

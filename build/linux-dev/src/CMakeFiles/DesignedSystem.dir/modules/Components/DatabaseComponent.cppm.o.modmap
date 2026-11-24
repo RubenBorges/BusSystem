@@ -1,0 +1,6 @@
+$root .
+DatabaseComponent src/CMakeFiles/DesignedSystem.dir/DatabaseComponent.gcm
+std src/CMakeFiles/@cmake_cxx_std@synth_0.dir/70b2301d7307.bmi
+Components src/CMakeFiles/DesignedSystem.dir/Components.gcm
+UtilitiesQL src/CMakeFiles/DesignedSystem.dir/UtilitiesQL.gcm
+Pqxx src/CMakeFiles/DesignedSystem.dir/Pqxx.gcm

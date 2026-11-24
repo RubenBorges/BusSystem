@@ -1,0 +1,32 @@
+{
+"rules": [
+{
+"primary-output": "src/CMakeFiles/DesignedSystem.dir/modules/Components/DatabaseComponent.cppm.o",
+"provides": [
+{
+"logical-name": "DatabaseComponent",
+"is-interface": true
+}
+],
+"requires": [
+{
+"logical-name": "std"
+}
+,
+{
+"logical-name": "Components"
+}
+,
+{
+"logical-name": "UtilitiesQL"
+}
+,
+{
+"logical-name": "Pqxx"
+}
+]
+}
+],
+"version": 0,
+"revision": 0
+}

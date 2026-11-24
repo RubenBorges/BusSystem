@@ -9,6 +9,10 @@ import std;
 
 Process::Process(ID id) : identity(id), knownProcesses{id} {}
 
+void Process::setDataHandler(DataHandler handler) {
+  dataHandler_ = std::move(handler);
+}
+
 void Process::start(GraphFrame frame) {
   if (frame.kind != FrameKind::Data) {
     throw std::invalid_argument("A wave must be started with a data frame");
@@ -195,6 +199,9 @@ void Process::receive(GraphFrame frame) {
 
     if (!activeWaves.insert(frame.waveID).second) return;
     go(frame);
+    if (frame.kind == FrameKind::Data && dataHandler_) {
+      dataHandler_(frame);
+    }
 }
 
 void Process::registerChannel(ID neighbourID, Channel channelImplementation) {

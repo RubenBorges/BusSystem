@@ -67,6 +67,13 @@ new edge; repeated announcements do not circulate indefinitely. The payload
 encodes a 32-bit edge count followed by source/destination ID pairs in network
 byte order.
 
+To broadcast terminal notifications, construct a `NotifyingComponent` with
+both its `DataBus` and a `Process`. A root process transmits each local
+`NotifyEvent` as a versioned Graph data wave; receiving components print it
+locally without rebroadcasting it. Start the component on each process and call
+its `pollGraph()` regularly to receive notifications. Non-root processes still
+print local notifications, but only the root originates graph-wide waves.
+
 Connections are not restricted to a central root: any process can open or
 accept a WebSocket and use it as a channel to a remote child. To join two
 existing trees, the application can connect the coordinator processes and

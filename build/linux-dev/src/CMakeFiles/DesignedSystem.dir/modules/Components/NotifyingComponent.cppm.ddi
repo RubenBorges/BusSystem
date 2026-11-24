@@ -1,0 +1,28 @@
+{
+"rules": [
+{
+"primary-output": "src/CMakeFiles/DesignedSystem.dir/modules/Components/NotifyingComponent.cppm.o",
+"provides": [
+{
+"logical-name": "NotifyingComponent",
+"is-interface": true
+}
+],
+"requires": [
+{
+"logical-name": "EventType"
+}
+,
+{
+"logical-name": "std"
+}
+,
+{
+"logical-name": "Components"
+}
+]
+}
+],
+"version": 0,
+"revision": 0
+}

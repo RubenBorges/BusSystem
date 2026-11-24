@@ -1,0 +1,17 @@
+{
+"rules": [
+{
+"primary-output": "src/CMakeFiles/DesignedSystem.dir/modules/pqxx.cppm.o",
+"provides": [
+{
+"logical-name": "Pqxx",
+"is-interface": true
+}
+],
+"requires": [
+]
+}
+],
+"version": 0,
+"revision": 0
+}

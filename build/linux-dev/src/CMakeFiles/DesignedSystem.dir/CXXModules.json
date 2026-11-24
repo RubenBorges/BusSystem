@@ -1,0 +1,261 @@
+{
+	"interface-objects" : {},
+	"modules" : 
+	{
+		"Components" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/Components.gcm",
+			"is-private" : true
+		},
+		"DataBus" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/DataBus.gcm",
+			"is-private" : true
+		},
+		"DatabaseComponent" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/DatabaseComponent.gcm",
+			"is-private" : true
+		},
+		"EventType" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/EventType.gcm",
+			"is-private" : true
+		},
+		"Graph" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/Graph.gcm",
+			"is-private" : true
+		},
+		"LoggingComponent" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/LoggingComponent.gcm",
+			"is-private" : true
+		},
+		"MessageBus" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/MessageBus.gcm",
+			"is-private" : true
+		},
+		"MultiMessageBus" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/MultiMessageBus.gcm",
+			"is-private" : true
+		},
+		"NotifyingComponent" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/NotifyingComponent.gcm",
+			"is-private" : true
+		},
+		"Policies" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/Policies.gcm",
+			"is-private" : true
+		},
+		"Pqxx" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/Pqxx.gcm",
+			"is-private" : true
+		},
+		"StoragePolicies" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/StoragePolicies.gcm",
+			"is-private" : true
+		},
+		"SubscriptionPolicies" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/SubscriptionPolicies.gcm",
+			"is-private" : true
+		},
+		"TaskPolicies" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/TaskPolicies.gcm",
+			"is-private" : true
+		},
+		"UtilitiesQL" : 
+		{
+			"bmi" : "/home/boopy/dev/Projects/DesignedSystem/build/linux-dev/src/CMakeFiles/DesignedSystem.dir/UtilitiesQL.gcm",
+			"is-private" : true
+		}
+	},
+	"references" : 
+	{
+		"Components" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/Components.gcm"
+		},
+		"DataBus" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/DataBus.gcm"
+		},
+		"DatabaseComponent" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/DatabaseComponent.gcm"
+		},
+		"EventType" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/EventType.gcm"
+		},
+		"Graph" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/Graph.gcm"
+		},
+		"LoggingComponent" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/LoggingComponent.gcm"
+		},
+		"MessageBus" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/MessageBus.gcm"
+		},
+		"MultiMessageBus" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/MultiMessageBus.gcm"
+		},
+		"NotifyingComponent" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/NotifyingComponent.gcm"
+		},
+		"Policies" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/Policies.gcm"
+		},
+		"Pqxx" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/Pqxx.gcm"
+		},
+		"StoragePolicies" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/StoragePolicies.gcm"
+		},
+		"SubscriptionPolicies" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/SubscriptionPolicies.gcm"
+		},
+		"TaskPolicies" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/TaskPolicies.gcm"
+		},
+		"UtilitiesQL" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/DesignedSystem.dir/UtilitiesQL.gcm"
+		},
+		"std" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/@cmake_cxx_std@synth_0.dir/70b2301d7307.bmi"
+		},
+		"std.compat" : 
+		{
+			"lookup-method" : "by-name",
+			"path" : "src/CMakeFiles/@cmake_cxx_std@synth_0.dir/f6733e1179a8.bmi"
+		}
+	},
+	"usages" : 
+	{
+		"Components" : 
+		[
+			"DataBus",
+			"EventType",
+			"Graph",
+			"TaskPolicies",
+			"std"
+		],
+		"DataBus" : 
+		[
+			"std"
+		],
+		"DatabaseComponent" : 
+		[
+			"Components",
+			"DataBus",
+			"EventType",
+			"Graph",
+			"Pqxx",
+			"TaskPolicies",
+			"UtilitiesQL",
+			"std"
+		],
+		"EventType" : 
+		[
+			"std"
+		],
+		"Graph" : 
+		[
+			"std"
+		],
+		"LoggingComponent" : 
+		[
+			"Components",
+			"DataBus",
+			"EventType",
+			"Graph",
+			"TaskPolicies",
+			"std"
+		],
+		"MessageBus" : 
+		[
+			"StoragePolicies",
+			"SubscriptionPolicies",
+			"std"
+		],
+		"MultiMessageBus" : 
+		[
+			"MessageBus",
+			"StoragePolicies",
+			"SubscriptionPolicies",
+			"std"
+		],
+		"NotifyingComponent" : 
+		[
+			"Components",
+			"DataBus",
+			"EventType",
+			"Graph",
+			"TaskPolicies",
+			"std"
+		],
+		"Policies" : 
+		[
+			"std"
+		],
+		"StoragePolicies" : 
+		[
+			"std"
+		],
+		"SubscriptionPolicies" : 
+		[
+			"std"
+		],
+		"TaskPolicies" : 
+		[
+			"Graph",
+			"std"
+		],
+		"UtilitiesQL" : 
+		[
+			"EventType",
+			"Pqxx",
+			"std"
+		],
+		"std.compat" : 
+		[
+			"std"
+		]
+	}
+}
