@@ -133,13 +133,29 @@ on each side:
 ```mermaid
 flowchart LR
   subgraph A["System A"]
-    ComponentsA["Components"] <--> BusA["DataBus"]
+    subgraph ComponentsA["Components (many)"]
+      direction TB
+      AComponent1["Component 1"]
+      AComponent2["Component 2"]
+      AComponentsMore["..."]
+    end
+    AComponent1 <--> BusA["DataBus"]
+    AComponent2 <--> BusA
+    AComponentsMore <--> BusA
     BusA <--> BridgeA["GraphComponent A"]
   end
 
   subgraph B["System B"]
     BridgeB["GraphComponent B"] <--> BusB["DataBus"]
-    BusB <--> ComponentsB["Components"]
+    subgraph ComponentsB["Components (many)"]
+      direction TB
+      BComponent1["Component 1"]
+      BComponent2["Component 2"]
+      BComponentsMore["..."]
+    end
+    BusB <--> BComponent1
+    BusB <--> BComponent2
+    BusB <--> BComponentsMore
   end
 
   BridgeA <--> BridgeB
