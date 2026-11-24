@@ -8,11 +8,15 @@ import Graph;
 
 export class GraphBridgeComponent final : public Component<> {
 private:
+    using EventTag = std::uint64_t;
+    using DecoderFn = std::function<void(std::span<const std::uint8_t>)>;
+
+    DataBus& bus_;
     std::string subscriberId_;
     Process localProcess_;
     CentralCoordinatorIDGen idGen_;
+    std::unordered_map<EventTag, DecoderFn> decoders_;
 
-    // Thread-local re-entrancy guard: safe when multiple threads call DataBus::publish()
     static inline thread_local bool publishingFromGraph_{false};
 
     struct PublishGuard {
@@ -25,9 +29,22 @@ private:
         }
     };
 
+    // FNV-1a 64-bit hash of type_info::name() for cross-module type tagging
+    template <typename Event>
+    static constexpr EventTag tagFor() noexcept {
+        std::string_view name = typeid(Event).name();
+        std::uint64_t hash = 14695981039346656037ULL;
+        for (unsigned char c : name) {
+            hash ^= c;
+            hash *= 1099511628211ULL;
+        }
+        return hash;
+    }
+
 public:
     GraphBridgeComponent(DataBus& bus, std::string subscriberId, ID localNodeId, std::uint8_t serverId)
         : Component<>(bus),
+          bus_(bus),
           subscriberId_(std::move(subscriberId)),
           localProcess_(localNodeId),
           idGen_(serverId) {
@@ -36,30 +53,46 @@ public:
         });
     }
 
-    ~GraphBridgeComponent() {
-        // DataBus::unsubscribe blocks until any active callback finishes,
-        // preventing use-after-free during destruction.
-        // Unsubscribe every bridged event type here (or in stop()).
-        // bus().unsubscribe<YourEventType>(subscriberId_);
-    }
-
-    // Register a local event type to be bridged out to the remote Graph
+    // Registers BOTH outbound serialization and inbound deserialization for `Event`.
+    // By default, works out-of-the-box for trivially copyable events; pass custom
+    // `encode` / `decode` lambdas for events owning std::string, std::vector, etc.
     template <typename Event>
-    void bridgeEvent() {
-        bus().subscribe<Event>(subscriberId_, [this](const Event& event) {
+    void bridgeEvent(
+        std::function<Message(const Event&)> encode = defaultEncode<Event>,
+        std::function<Event(std::span<const std::uint8_t>)> decode = defaultDecode<Event>) {
+        const EventTag tag = tagFor<Event>();
+
+        decoders_[tag] = [this, decode = std::move(decode)](std::span<const std::uint8_t> body) {
+            Event event = decode(body);
+            bus_.publish(event);
+        };
+
+        bus_.subscribe<Event>(subscriberId_, [this, tag, encode = std::move(encode)](const Event& event) {
             if (publishingFromGraph_) {
-                return; // Prevent echo loop back to Graph
+                return;
             }
-            forwardToGraph(event);
+            Message body = encode(event);
+            Message framed;
+            framed.resize(sizeof(EventTag) + body.size());
+            std::memcpy(framed.data(), &tag, sizeof(EventTag));
+            if (!body.empty()) {
+                std::memcpy(framed.data() + sizeof(EventTag), body.data(), body.size());
+            }
+
+            localProcess_.start(GraphFrame{
+                .waveID = idGen_.generate_id(),
+                .payload = std::move(framed),
+                .kind = FrameKind::Data
+            });
         });
     }
 
     template <typename Event>
     void unbridgeEvent() {
-        bus().unsubscribe<Event>(subscriberId_);
+        bus_.unsubscribe<Event>(subscriberId_);
+        decoders_.erase(tagFor<Event>());
     }
 
-    // Connect to a remote or local peer Process via any Graph Channel variant
     void connectPeer(ID remotePeerId, Channel outboundChannel, bool isUpstreamParent = false) {
         if (isUpstreamParent) {
             localProcess_.setParent(remotePeerId);
@@ -69,7 +102,6 @@ public:
         localProcess_.registerChannel(remotePeerId, std::move(outboundChannel));
     }
 
-    // Convenience helper to connect two in-memory GraphBridgeComponents
     static void bridgeInMemory(GraphBridgeComponent& parentBridge, GraphBridgeComponent& childBridge) {
         parentBridge.connectPeer(
             childBridge.localProcess_.identity,
@@ -90,29 +122,48 @@ public:
     Process& process() noexcept { return localProcess_; }
 
 private:
-    template <typename Event>
-    void forwardToGraph(const Event& event) {
-        Message payload = serializeEvent(event);
-        localProcess_.start(GraphFrame{
-            .waveID = idGen_.generate_id(),
-            .payload = std::move(payload),
-            .kind = FrameKind::Data
-        });
-    }
-
     void onGraphFrameReceived(const GraphFrame& frame) {
         if (frame.kind != FrameKind::Data) {
             return;
         }
-
-        // Decode frame.payload into concrete EventType(s) and publish to local DataBus.
-        // PublishGuard ensures DataBus::publish() does not trigger forwardToGraph().
         PublishGuard guard;
         decodeAndPublish(frame.payload);
     }
 
-    template <typename Event>
-    static Message serializeEvent(const Event& event);
+    void decodeAndPublish(const Message& payload) {
+        if (payload.size() < sizeof(EventTag)) {
+            return;
+        }
 
-    void decodeAndPublish(const Message& payload);
+        EventTag tag{};
+        std::memcpy(&tag, payload.data(), sizeof(EventTag));
+
+        auto it = decoders_.find(tag);
+        if (it == decoders_.end()) {
+            return; // Event type not bridged on this node
+        }
+
+        std::span<const std::uint8_t> body(
+            payload.data() + sizeof(EventTag),
+            payload.size() - sizeof(EventTag)
+        );
+        it->second(body);
+    }
+
+    template <typename Event>
+    static Message defaultEncode(const Event& event) {
+        static_assert(std::is_trivially_copyable_v<Event>, "Non-trivially copyable events require custom encode/decode lambdas in bridgeEvent()");
+        Message bytes(sizeof(Event));
+        std::memcpy(bytes.data(), &event, sizeof(Event));
+        return bytes;
+    }
+
+    template <typename Event>
+    static Event defaultDecode(std::span<const std::uint8_t> bytes) {
+        static_assert(std::is_trivially_copyable_v<Event>,"Non-trivially copyable events require custom encode/decode lambdas in bridgeEvent()");
+        if (bytes.size() != sizeof(Event)) throw std::runtime_error("Invalid payload size for bridged event");
+        Event event{};
+        std::memcpy(&event, bytes.data(), sizeof(Event));
+        return event;
+    }
 };

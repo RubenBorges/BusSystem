@@ -39,6 +39,7 @@ target_sources(DesignedSystem
             modules/Components/DatabaseComponent.cppm
             modules/Components/LoggingComponent.cppm
             modules/Components/NotifyingComponent.cppm
+            modules/Components/GraphBridgeComponent.cppm
             modules/Policies/SubscriptionPolicies.cppm
             modules/Policies/StoragePolicies.cppm
             modules/Policies/TaskPolicies.cppm
