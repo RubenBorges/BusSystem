@@ -1,16 +1,22 @@
+#pragma once
+
 #include <array>
 #include <cstddef>
+#include <expected>
+#include <filesystem>
 #include <format>
 #include <initializer_list>
 #include <iostream>
+#include <iterator>
 #include <optional>
+#include <print>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
+#include <pqxx/pqxx>
 
 #include <Components.hpp>
-#include <pqxx/pqxx>
 #include <UtilitiesQL.hpp>
 
 #ifndef MAXCOLUMNS__
@@ -21,13 +27,11 @@ inline constexpr std::size_t MaxCols{MAXCOLUMNS__};
 
 enum class txnState : unsigned char { invalid = '0', valid = '1' };
 
-class DBComponent : public Component {
-//    static constexpr std::size_t MaxCols = MAXCOLS__; // Practical cap (PG hard protocol limit is 65,535)
-
+class DatabaseComponent : public Component {
     DataBus& bus_;
     bool started_ = false;
     std::string currentTransaction_;
-    
+
     // Lightweight fixed-capacity views for column names (zero heap allocations)
     std::array<std::string_view, MaxCols> transactionArgs_{};
     std::size_t argCount_ = 0;
@@ -43,12 +47,11 @@ class DBComponent : public Component {
 public:
     txnState transactionState{txnState::invalid};
 
-    explicit DBComponent(
-        DataBus& bus,
-        std::string connectionString = "dbname=mydb user=myuser password=mypass hostaddr=127.0.0.1 port=5432"
-    ) : bus_(bus), connStr_(std::move(connectionString)) {
-        currentTransaction_.reserve(512);
-    }
+    explicit DatabaseComponent(DataBus& bus,std::string connectionString = "dbname=postgres user=postgres hostaddr=localhost port=5432")
+        : bus_(bus), connStr_(std::move(connectionString)) {currentTransaction_.reserve(512);}
+
+    explicit DatabaseComponent(DataBus& bus, const std::filesystem::path& configFile)
+        : DatabaseComponent(bus, resolveConnectionString(configFile)) {}
 
     void start() override {
         if (!conn_ || !conn_->is_open()) {
@@ -70,7 +73,6 @@ public:
         for (std::string_view arg : argList) addArg(arg);
     }
 
-    // Accepts any type pqxx supports (int, double, string_view, etc.) without forcing std::to_string!
     template <typename... Ts>
     void addVals(Ts&&... vals) {
         (addVal(std::forward<Ts>(vals)), ...);
@@ -79,8 +81,8 @@ public:
     void resetTransactionState() {
         argCount_ = 0;
         valCount_ = 0;
-        transactionParams_ = pqxx::params{}; // Resets internal buffer
-        currentTransaction_.clear();         // Keeps allocated string capacity
+        transactionParams_ = pqxx::params{};
+        currentTransaction_.clear();
         transactionState = txnState::invalid;
     }
 
@@ -88,8 +90,13 @@ public:
         transactionState = txnState::invalid;
         currentTransaction_.clear();
 
+        if (tableName.empty()) {
+            std::println(stderr, "Table name must be set before building a transaction.");
+            return;
+        }
+
         if (argCount_ == 0 || argCount_ != valCount_) {
-            std::cerr << "Argument and value counts must be non-empty and equal.\n";
+            std::println(stderr, "Argument and value counts must be non-empty and equal.");
             return;
         }
 
@@ -123,6 +130,19 @@ public:
     }
 
 private:
+    static std::string resolveConnectionString(const std::filesystem::path& configFile) {
+        return bpql::loadCredentials(configFile)
+            .and_then(bpql::validate)
+            .transform(bpql::toConnString)
+            .or_else([](const std::string& err) -> std::expected<std::string, std::string> {
+                std::println(stderr, "Primary config failed ({}), trying fallback...", err);
+                return bpql::loadCredentials("fallback_creds.txt")
+                    .and_then(bpql::validate)
+                    .transform(bpql::toConnString);
+            })
+            .value_or("dbname=postgres user=postgres hostaddr=localhost port=5432");
+    }
+
     void addArg(std::string_view arg) {
         if (argCount_ >= MaxCols) {
             throw std::out_of_range("Exceeded MaxCols limit");
@@ -138,12 +158,12 @@ private:
 
     int executeParams(const pqxx::params& params) {
         if (!conn_ || !conn_->is_open()) {
-            std::cerr << "Database connection is not open.\n";
+            std::println(stderr, "Database connection is not open.");
             return 1;
         }
 
         if (currentTransaction_.empty()) {
-            std::cerr << "No transaction SQL scaffolding set.\n";
+            std::println(stderr, "No transaction SQL scaffolding set.");
             return 1;
         }
 
@@ -154,9 +174,8 @@ private:
             resetTransactionState();
             return 0;
         } catch (const std::exception& e) {
-            std::cerr << "Database error: " << e.what() << "\n";
+            std::println(stderr, "Database error: {}", e.what());
             return 1;
         }
     }
 };
-

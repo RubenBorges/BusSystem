@@ -10,7 +10,7 @@ int main() {
     SensorComponent sensor(bus);
     DiagnosticsComponent diagnostics(bus);
     DashboardComponent dashboard(bus);
-    DBComponent dbc(bus, "dbname=BoopyQL user=boopy password=8577 hostaddr=127.0.0.1 port=5432");
+    DatabaseComponent dbc(bus,std::filesystem::path{"boopy/boopy.ql"});
     // Start each component to install its subscriptions and providers.
     sensor.start();
     diagnostics.start();
