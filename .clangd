@@ -5,11 +5,11 @@ CompileFlags:
     - -I/usr/include
     - -I/usr/include/pqxx
     - -I/usr/local/include
-    - -L/usr/lib
-    - -lpqxx  
-    - -fmodules
+    - -fno-implicit-modules
+    - -fno-implicit-module-maps
     - -fmodule-file=std=/home/boopy/.cache/clangd-modules/std.pcm
   Remove:
+    - -fmodules
     - -fmodule-mapper=*
     - -fmodules-ts
     - -fdeps-format=*

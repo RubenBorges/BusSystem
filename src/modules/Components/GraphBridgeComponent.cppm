@@ -196,30 +196,19 @@ public:
         }
         localProcess_.registerChannel(remotePeerId, std::move(outboundChannel));
     }
-    static void bridgeInMemory(GraphBridgeComponent& bridgeA, GraphBridgeComponent& bridgeB) {
-        bridgeA.connectPeer(
-            bridgeB.localProcess_.identity,
-            PointerChannel<Process>(&bridgeB.localProcess_),
+
+    static void bridgeInMemory(GraphBridgeComponent& bridge, GraphBridgeComponent& bridgeOther) {
+        bridge.connectPeer(
+            bridgeOther.localProcess_.identity,
+            PointerChannel<Process>(&bridgeOther.localProcess_),
             /*isUpstreamParent=*/false
         );
-        bridgeB.connectPeer(
-            bridgeA.localProcess_.identity,
-            PointerChannel<Process>(&bridgeA.localProcess_),
-            /*isUpstreamParent=*/false
+        bridgeOther.connectPeer(
+            bridge.localProcess_.identity,
+            PointerChannel<Process>(&bridge.localProcess_),
+            /*isUpstreamParent=*/true
         );
     }
-    // static void bridgeInMemory(GraphBridgeComponent& parentBridge, GraphBridgeComponent& childBridge) {
-    //     parentBridge.connectPeer(
-    //         childBridge.localProcess_.identity,
-    //         PointerChannel<Process>(&childBridge.localProcess_),
-    //         /*isUpstreamParent=*/false
-    //     );
-    //     childBridge.connectPeer(
-    //         parentBridge.localProcess_.identity,
-    //         PointerChannel<Process>(&parentBridge.localProcess_),
-    //         /*isUpstreamParent=*/true
-    //     );
-    // }
 
     void poll() {
         localProcess_.pollChannels();
