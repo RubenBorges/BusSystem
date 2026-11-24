@@ -5,11 +5,11 @@
 * 
 * Connective Architecture should approach the following intended design:
 *
-*  \\==========\\     \\======\\            LOCAL                         REMOTE           \\======\\     \\==========\\
-*  \\ComponentC\\ <== \\=Data=\\    \\================\\<<       >>\\================\\    \\=Data=\\ ==> \\ComponentZ\\
-*  \\ComponentB\\<===>\\==Bus=\\<==>\\GraphBridgeComp1\\<=Channel=>\\GraphBridgeComp2\\<==>\\==Bus=\\<===>\\ComponentY\\
-*  \\ComponentA\\ ==> \\===1==\\    \\================\\>>       <<\\================\\    \\==2===\\ <== \\ComponentX\\
-*  \\==========\\     \\======\\                                                           \\======\\     \\==========\\        
+*  \\==========\\     \\======\\           [LOCAL]                        [REMOTE]           \\======\\     \\==========\\
+*  \\ComponentC\\ <== \\=Data=\\    \\================\\ <<       << \\================\\    \\=Data=\\ ==> \\ComponentZ\\
+*  \\ComponentB\\<===>\\==Bus=\\<==>\\GraphBridgeComp1\\<<=Channel=>>\\GraphBridgeComp2\\<==>\\==Bus=\\<===>\\ComponentY\\
+*  \\ComponentA\\ ==> \\===1==\\    \\================\\ >>       >> \\================\\    \\==2===\\ <== \\ComponentX\\
+*  \\==========\\     \\======\\                                                             \\======\\     \\==========\\        
 *        1)               2)                3)                4)
 *
  *  1) Components access the local DataBus as subscribers and publishers.
