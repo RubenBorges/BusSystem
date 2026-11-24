@@ -1,0 +1,28 @@
+{
+"rules": [
+{
+"primary-output": "src/CMakeFiles/DesignedSystem.dir/Modules/MessageBus/MessageBus.cppm.o",
+"provides": [
+{
+"logical-name": "MessageBus",
+"is-interface": true
+}
+],
+"requires": [
+{
+"logical-name": "SubscriptionPolicies"
+}
+,
+{
+"logical-name": "StoragePolicies"
+}
+,
+{
+"logical-name": "std"
+}
+]
+}
+],
+"version": 0,
+"revision": 0
+}

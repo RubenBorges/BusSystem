@@ -1,0 +1,42 @@
+{
+"rules": [
+{
+"primary-output": "src/CMakeFiles/DesignedSystem.dir/main.cpp.o",
+"requires": [
+{
+"logical-name": "DataBus"
+}
+,
+{
+"logical-name": "EventType"
+}
+,
+{
+"logical-name": "DatabaseComponent"
+}
+,
+{
+"logical-name": "LoggingComponent"
+}
+,
+{
+"logical-name": "NotifyingComponent"
+}
+,
+{
+"logical-name": "std"
+}
+,
+{
+"logical-name": "Components"
+}
+,
+{
+"logical-name": "Pqxx"
+}
+]
+}
+],
+"version": 0,
+"revision": 0
+}
