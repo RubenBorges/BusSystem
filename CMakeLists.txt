@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.28)
 project(DesignedSystem LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 26)
@@ -8,8 +8,4 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(src)
 
-# install(
-#     FILES "${CMAKE_SOURCE_DIR}/boopyql/boopy.ql"
-#     DESTINATION "conf"
-# )
 install(TARGETS DesignedSystem DESTINATION .)

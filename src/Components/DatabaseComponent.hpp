@@ -16,13 +16,14 @@
 #include <string_view>
 #include <utility>
 #include <pqxx/pqxx>
-
-#include <Components.hpp>
+// #include <Components.hpp>
 #include <UtilitiesQL.hpp>
 
+
 #ifndef MAXCOLUMNS__
-    #define MAXCOLUMNS__ 64
+#define MAXCOLUMNS__ 64
 #endif
+import Components;
 
 inline constexpr std::size_t MaxCols{MAXCOLUMNS__};
 

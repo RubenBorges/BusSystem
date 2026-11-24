@@ -1,10 +1,6 @@
 #pragma once
 
-#include <atomic>
-#include <cassert>
-#include <variant>
-#include <stdexcept>
-#include <string>
+import std;
 // Event sent by the sensor component.
 struct TemperatureUpdated {
     float celsius;

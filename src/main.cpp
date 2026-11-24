@@ -1,53 +1,49 @@
-#include <Bus.hpp>
-#include <Components.hpp>
-#include <DatabaseComponent.hpp>
-#include <eventType.hpp>
+// #include <atomic>
+// #include <chrono>
+// #include <exception>
+// #include <filesystem>
+// #include <fstream>
+// #include <future>
+// #include <iostream>
+// #include <string_view>
+// #include <system_error>
+// #include <thread>
+// #include <variant>
+import std;
+import Components;
+import DatabaseComponent;
+import DataBus;
+import EventType;
+import UtilitiesQL;
 
-#include <cctype>
-#include <exception>
-#include <fstream>
-#include <filesystem>
-#include <iostream>
-#include <system_error>
-#include <string_view>
-#include <variant>
 
 namespace {
 
-bool isIdentifierStart(char value) {
-    const auto character = static_cast<unsigned char>(value);
-    return std::isalpha(character) || value == '_';
-}
-
-bool isIdentifierPart(char value) {
-    const auto character = static_cast<unsigned char>(value);
-    return std::isalnum(character) || value == '_' || value == '$';
-}
-
-bool isSqlIdentifier(std::string_view value, bool allowSchema) {
-    bool segmentStart = true;
-    for (char character : value) {
-        if (allowSchema && character == '.') {
-            if (segmentStart) {
-                return false;
-            }
-            segmentStart = true;
-        } else if (segmentStart ? isIdentifierStart(character) : isIdentifierPart(character)) {
-            segmentStart = false;
-        } else {
-            return false;
-        }
+// Ongoing sensor polling loop running on its own thread, publishing to the shared DataBus
+void runSensorLoop(SensorComponent& sensor, std::atomic<bool>& running) {
+    while (running.load()) {
+        sensor.readSensor();
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
-    return !segmentStart;
 }
 
-std::string_view statusName(DatabaseTx::Status status) {
-    switch (status) {
-        case DatabaseTx::Status::Waiting: return "waiting";
-        case DatabaseTx::Status::Fail: return "failed";
-        case DatabaseTx::Status::Success: return "succeeded";
+// Background database worker that executes the transaction and fulfills the promise when done
+void runDatabaseTask(std::promise<int>&& resultPromise,
+                     DatabaseComponent& database,
+                     std::string_view tableName,
+                     std::string_view columnName,
+                     std::string_view value) {
+    try {
+        database.setTableName(tableName);
+        database.addArgs({columnName});
+        database.addVals(value);
+        database.buildTransactionFromArgsandVals();
+        int txResult = database.processTransaction();
+        resultPromise.set_value(txResult == 0 ? 0 : 1);
+    } catch (...) {
+        // Forward any unhandled exception cleanly across threads to fut.get()
+        resultPromise.set_exception(std::current_exception());
     }
-    return "unknown";
 }
 
 } // namespace
@@ -65,7 +61,7 @@ int main(int argc, char* argv[]) {
     const std::string_view columnName{argv[3]};
     const std::string_view value{argv[4]};
 
-    if (!isSqlIdentifier(tableName, true) || !isSqlIdentifier(columnName, false)) {
+    if (!bpql::isSqlIdentifier(tableName, true) || !bpql::isSqlIdentifier(columnName, false)) {
         std::cerr << "Table and column must be valid unquoted SQL identifiers.\n";
         return 2;
     }
@@ -82,7 +78,9 @@ int main(int argc, char* argv[]) {
         return 2;
     }
 
+    // Shared, thread-safe DataBus stays on the stack while components use it by reference
     DataBus bus;
+
     bus.subscribe<TemperatureUpdated>(
         "main-temperature-observer",
         [](const TemperatureUpdated& event) {
@@ -93,7 +91,7 @@ int main(int argc, char* argv[]) {
         [](const DatabaseTx& event) {
             std::cout << "[Database] "
                       << (event.mode == DatabaseTx::Mode::Write ? "write" : "read")
-                      << ' ' << statusName(event.status) << " (transaction ";
+                      << ' ' << bpql::statusName(event.status) << " (transaction ";
             std::visit([](const auto& xid) { std::cout << xid; }, event.pgXid);
             std::cout << ")\n";
         });
@@ -107,6 +105,10 @@ int main(int argc, char* argv[]) {
     diagnostics.start();
     dashboard.start();
 
+    // Start ongoing sensor thread
+    std::atomic<bool> keepRunning{true};
+    std::thread sensorThread(runSensorLoop, std::ref(sensor), std::ref(keepRunning));
+
     bool databaseStarted = false;
     int result = 0;
     try {
@@ -117,23 +119,40 @@ int main(int argc, char* argv[]) {
         result = 1;
     }
 
-    sensor.readSensor();
     dashboard.refresh();
 
     if (databaseStarted) {
-        database.setTableName(tableName);
-        database.addArgs({columnName});
-        database.addVals(value);
-        database.buildTransactionFromArgsandVals();
-        if (database.processTransaction() != 0) {
+        std::promise<int> dbPromise;
+        std::future<int> dbFuture = dbPromise.get_future();
+
+        std::thread dbThread(
+            runDatabaseTask,
+            std::move(dbPromise),
+            std::ref(database),
+            tableName,
+            columnName,
+            value);
+
+        try {
+            // Blocks until the database thread calls set_value() or set_exception()
+            result = dbFuture.get();
+        } catch (const std::exception& error) {
+            std::cerr << "[Database] Transaction threw exception: " << error.what() << '\n';
             result = 1;
         }
+
+        dbThread.join();
     }
+
+    // Cleanly stop ongoing worker threads before destroying components or the DataBus
+    keepRunning.store(false);
+    sensorThread.join();
 
     database.stop();
     dashboard.stop();
     diagnostics.stop();
     sensor.stop();
+
     bus.unsubscribe<TemperatureUpdated>("main-temperature-observer");
     bus.unsubscribe<DatabaseTx>("main-database-observer");
 
