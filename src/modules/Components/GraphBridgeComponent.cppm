@@ -3,7 +3,7 @@
 * Two seperate GraphBridgeComponents are be linked together via a shared, bidirectional Process::Channel
 * they can both use to propogate data and execution across the Databus processes.
 * 
-* Intended Databus-DistributedGraph Architecture Design (see README.md): 
+* Intended Databus-DistributedGraph Architecture (see README.md): 
 *
 *  \\==========\\     \\======\\           [LOCAL]                        [REMOTE]           \\======\\     \\==========\\
 *  \\ComponentC\\ <== \\=Data=\\    \\================\\ <<       << \\================\\    \\=Data=\\ ==> \\ComponentZ\\
