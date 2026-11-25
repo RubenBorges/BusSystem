@@ -1,4 +1,4 @@
-export module Graph:CentralCoordinatorIDGen;
+export module CentralCoordinatorIDGen;
 
 import std;
 

@@ -7,7 +7,13 @@ export module NotifyingComponent;
 import std;
 import Components;
 import EventType;
-import Graph;
+import GraphProcess;
+import WireProtocols;
+import CentralCoordinatorIDGen;
+
+using Process = GraphProcess;
+using Channel = GraphProcess::Channel;
+using namespace protocol;
 
 export class NotifyingComponent final : public Component<> {
 public:
@@ -226,11 +232,14 @@ private:
         if (!started_.load(std::memory_order_acquire)) {
             return;
         }
-        graphProcess_->start(GraphFrame{
-            idGen_.generate_id(),
-            encode(event),
-            FrameKind::Data
-        });
+       graphProcess_->start(GraphFrame{
+    idGen_.generate_id(),
+    graphProcess_->identity,
+    encode(event),
+    FrameKind::Data
+});
+
+
     }
 
     void receive(const GraphFrame& frame) {

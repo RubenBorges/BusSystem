@@ -1,3 +1,10 @@
+cmake_minimum_required(VERSION 3.28)
+project(distributedBusSystem LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 find_package(Boost CONFIG REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
@@ -5,7 +12,40 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBPQ REQUIRED IMPORTED_TARGET libpq)
 find_package(cppgraphqlgen CONFIG REQUIRED)
 
-set(PROJECT_NAME distributedBusSystem)
+set(MODULE_SRCS
+    modules/Bus/DataBus.cppm
+    modules/Bus/Topic.cppm
+    modules/Bus/HybridBus.cppm
+    modules/Bus/StaticEventBus.cppm
+    modules/Components/Components.cppm
+    modules/Components/DatabaseComponent.cppm
+    modules/Components/GraphBridgeComponent.cppm
+    modules/Components/LoggingComponent.cppm
+    modules/Components/NotifyingComponent.cppm
+    modules/Database/DatabaseCredentials.cppm
+    modules/Database/pqxx.cppm
+    modules/Database/UtilitiesQL.cppm
+    modules/Database/UtilitiesVK.cppm
+    modules/Events/EventType.cppm
+    modules/Graph/WireProtocols.cppm
+    modules/Graph/Wire.cppm
+    modules/Graph/WebSocketConnection.cppm
+    modules/Graph/GraphProcess.cppm
+    modules/Graph/CentralCoordinatorIDGen.cppm
+    modules/Policies/Policies.cppm
+    modules/Policies/StoragePolicies.cppm
+    modules/Policies/SubscriptionPolicies.cppm
+    modules/Policies/TaskPolicies.cppm
+    modules/Tests/FunctionalityTest.cppm
+    modules/Tests/GraphTest.cppm
+)
+
+set(MODULE_IMPL_SRCS
+    modules/Graph/GraphProcess.cpp
+    modules/Graph/Wire.cpp
+    modules/Graph/WebSocketConnection.cpp
+    modules/Graph/CentralCoordinatorIDGen.cpp
+)
 
 add_library(custom_pqxx SHARED IMPORTED)
 set_target_properties(custom_pqxx PROPERTIES
@@ -51,43 +91,18 @@ add_custom_command(
     VERBATIM
 )
 
-# 1. Executable + standard .cpp files (including generated schema .cpp files)
 add_executable(distributedBusSystem
     main.cpp
-    modules/Graph/Graph.cpp
-    modules/Graph/CentralCoordinatorIDGen.cpp
-    modules/Graph/WebSocketConnection.cpp
-    modules/Graph/Wire.cpp
-    "${GEN_SCHEMA_H}"
+    ${MODULE_IMPL_SRCS}
+    ${GEN_SCHEMA_H}
     ${GEN_SCHEMA_SOURCES}
 )
 
-# 2. C++20/26 module interface (.cppm) files ONLY
 target_sources(distributedBusSystem
     PRIVATE
-        FILE_SET CXX_MODULES
-        BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
-        FILES
-            modules/Bus/DataBus.cppm
-            modules/Bus/EventChannel.cppm
-            modules/Bus/HybridBus.cppm
-            modules/Bus/StaticEventBus.cppm
-            modules/Components/Components.cppm
-            modules/Components/DatabaseComponent.cppm
-            modules/Components/GraphBridgeComponent.cppm
-            modules/Components/LoggingComponent.cppm
-            modules/Components/NotifyingComponent.cppm
-            modules/Database/DatabaseCredentials.cppm
-            modules/Database/pqxx.cppm
-            modules/Database/UtilitiesQL.cppm
-            modules/Database/UtilitiesVK.cppm
-            modules/Events/EventType.cppm
-            modules/Graph/Graph.cppm
-            modules/Policies/Policies.cppm
-            modules/Policies/StoragePolicies.cppm
-            modules/Policies/SubscriptionPolicies.cppm
-            modules/Policies/TaskPolicies.cppm
-            modules/Tests/FunctionalityTest.cppm
+    FILE_SET CXX_MODULES
+    BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
+    FILES ${MODULE_SRCS}
 )
 
 target_link_libraries(distributedBusSystem PRIVATE
@@ -100,20 +115,12 @@ target_link_libraries(distributedBusSystem PRIVATE
     cppgraphqlgen::graphqljson
 )
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set_source_files_properties(
-        modules/Graph/Graph.cppm
-        modules/Graph/Graph.cpp
-        modules/Graph/CentralCoordinatorIDGen.cpp
-        modules/Graph/WebSocketConnection.cpp
-        modules/Graph/Wire.cpp
-        modules/Database/UtilitiesVK.cppm
-        ${GEN_SCHEMA_SOURCES}
-        PROPERTIES COMPILE_OPTIONS "-fno-gnu-unique"
-    )
-endif()
+target_compile_options(distributedBusSystem PRIVATE
+    $<$<CXX_COMPILER_ID:GNU>:-fno-gnu-unique>
+)
 
 target_include_directories(distributedBusSystem PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     "${GEN_SCHEMA_DIR}"
+    /usr/local/include
 )

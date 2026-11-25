@@ -1,12 +1,10 @@
 module;
 
-// Put any #include headers here (e.g., <cstdint>, <atomic>)
 #include <cstdint>
 
-module Graph;
-import std;
+module CentralCoordinatorIDGen;
 
-// Your CentralCoordinatorIDGen::CentralCoordinatorIDGen(...) and generate_id() definitions below
+import std;
 
 CentralCoordinatorIDGen::CentralCoordinatorIDGen(std::uint8_t server_id) {
     if (server_id > SERVER_MASK) {

@@ -3,16 +3,26 @@ module;
 #include <arpa/inet.h>
 #include <cstring>
 #include <cstdint>
-module Graph;
+module GraphProcess;
 import std;
+import WireProtocols;
 
-Process::Process(ID id) : identity(id), knownProcesses{id} {}
+using Process = GraphProcess;
+using namespace protocol;
 
-void Process::setDataHandler(DataHandler handler) {
+
+
+using ID = protocol::ID;
+using WaveID = protocol::WaveID;
+using GraphFrame = protocol::GraphFrame;
+
+GraphProcess::GraphProcess(ID id) : identity(id), knownProcesses{id} {}
+
+void GraphProcess::setDataHandler(DataHandler handler) {
   dataHandler_ = std::move(handler);
 }
 
-void Process::start(GraphFrame frame) {
+void GraphProcess::start(GraphFrame frame) {
   if (frame.kind != FrameKind::Data) {
     throw std::invalid_argument("A wave must be started with a data frame");
   }
@@ -22,13 +32,13 @@ void Process::start(GraphFrame frame) {
   go(frame);
 }
 
-void Process::go(GraphFrame frame) {
+void GraphProcess::go(GraphFrame frame) {
   std::vector<Channel*> childChannels;
   childChannels.reserve(children.size());
   for (ID childID : children) {
     auto it = activeChannels.find(childID);
     if (it == activeChannels.end()) {
-      throw std::runtime_error("No channel registered for child process " + std::to_string(childID));
+      throw std::runtime_error("No channel registered for child GraphProcess " + std::to_string(childID));
     }
     childChannels.push_back(&it->second);
   }
@@ -44,7 +54,7 @@ void Process::go(GraphFrame frame) {
   }
 }
 
-void Process::back(GraphFrame backFrame) {
+void GraphProcess::back(GraphFrame backFrame) {
   if (backFrame.kind != FrameKind::Acknowledgement) return;
 
   auto outstanding = expectedMessagesByWave.find(backFrame.waveID);
@@ -54,7 +64,7 @@ void Process::back(GraphFrame backFrame) {
   }
 }
 
-void Process::completeWave(WaveID waveID) {
+void GraphProcess::completeWave(WaveID waveID) {
   expectedMessagesByWave.erase(waveID);
   activeWaves.erase(waveID);
   completedWaves.insert(waveID);
@@ -62,10 +72,11 @@ void Process::completeWave(WaveID waveID) {
   if (parent) {
     auto it = activeChannels.find(*parent);
     if (it == activeChannels.end()) {
-      throw std::runtime_error("No channel registered for parent process " + std::to_string(*parent));
+      throw std::runtime_error("No channel registered for parent GraphProcess " + std::to_string(*parent));
     }
-    GraphFrame acknowledgement{waveID, {}, FrameKind::Acknowledgement};
-    std::visit(
+GraphFrame acknowledgement{waveID, identity, {}, FrameKind::Acknowledgement};
+
+std::visit(
         [&acknowledgement](auto& channel) { channel.send(acknowledgement); },
         it->second
     );
@@ -73,17 +84,17 @@ void Process::completeWave(WaveID waveID) {
   }
 
   std::println("Process Tree ROOT has completed Wave {}. Initiating global cleanup broadcast.", waveID);
-  GraphFrame cleanup{waveID, {}, FrameKind::Cleanup};
+GraphFrame cleanup{waveID, identity, {}, FrameKind::Cleanup};
   for (ID childID : children) {
     auto it = activeChannels.find(childID);
     if (it == activeChannels.end()) {
-      throw std::runtime_error("No channel registered for child process " + std::to_string(childID));
+      throw std::runtime_error("No channel registered for child GraphProcess " + std::to_string(childID));
     }
     std::visit([&cleanup](auto& channel) { channel.send(cleanup); }, it->second);
   }
 }
 
-void Process::pollChannels() {
+void GraphProcess::pollChannels() {
   for (auto& [neighbourID, channel] : activeChannels) {
     (void)neighbourID;
     if (auto* socket = std::get_if<SocketChannel>(&channel)) {
@@ -94,16 +105,16 @@ void Process::pollChannels() {
   }
 }
 
-bool Process::isWaveCompleted(WaveID waveID) const {
+bool GraphProcess::isWaveCompleted(WaveID waveID) const {
   return completedWaves.contains(waveID);
 }
 
-bool Process::isWaveCleaned(WaveID waveID) const {
+bool GraphProcess::isWaveCleaned(WaveID waveID) const {
   return cleanedWaves.contains(waveID);
 }
 
 //Altered neighbours parameter from value to const&
-void Process::position(ID id, const std::vector<Edge>& neighbours) {
+void GraphProcess::position(ID id, const std::vector<Edge>& neighbours) {
   if (neighbours.size() > std::numeric_limits<ID>::max()) {throw std::length_error("POSITION contains too many edges");}
 
   bool changed = false;
@@ -133,7 +144,7 @@ void Process::position(ID id, const std::vector<Edge>& neighbours) {
     appendID(edge.destination);
   }
 
-  const GraphFrame announcement{id, std::move(payload), FrameKind::Position};
+const GraphFrame announcement{id, identity, std::move(payload), FrameKind::Position};
   for (auto& [neighbourID, channel] : activeChannels) {
     (void)neighbourID;
     std::visit(
@@ -142,11 +153,11 @@ void Process::position(ID id, const std::vector<Edge>& neighbours) {
     );
   }
 }
-bool Process::isProcessKnown(ID id) const {
+bool GraphProcess::isProcessKnown(ID id) const {
   return std::find(knownProcesses.begin(), knownProcesses.end(), id) != knownProcesses.end();
 }
 
-void Process::receive(GraphFrame frame) {
+void GraphProcess::receive(GraphFrame frame) {
     if (frame.kind == FrameKind::Position) {
         if (frame.payload.size() < sizeof(uint32_t)) {
             throw std::invalid_argument("Malformed POSITION frame");
@@ -182,7 +193,7 @@ void Process::receive(GraphFrame frame) {
         for (ID childID : children) {
             auto it = activeChannels.find(childID);
             if (it == activeChannels.end()) {
-                throw std::runtime_error("No channel registered for child process " + std::to_string(childID));
+                throw std::runtime_error("No channel registered for child GraphProcess " + std::to_string(childID));
             }
             std::visit([&frame](auto& channel) { channel.send(frame); }, it->second);
         }
@@ -203,28 +214,28 @@ void Process::receive(GraphFrame frame) {
     }
 }
 
-void Process::registerChannel(ID neighbourID, Channel channelImplementation) {
+void GraphProcess::registerChannel(ID neighbourID, Channel channelImplementation) {
   activeChannels.insert_or_assign(neighbourID, std::move(channelImplementation));
 }
 
-void Process::addChild(Process *child) {
-  if (!child) throw std::invalid_argument("Child process cannot be null");
+void GraphProcess::addChild(Process *child) {
+  if (!child) throw std::invalid_argument("Child GraphProcess cannot be null");
   if (child->parent && child->parent != identity) {
-    throw std::invalid_argument("Child process already has a different parent");
+    throw std::invalid_argument("Child GraphProcess already has a different parent");
   }
   addChild(child->identity);
   child->parent = identity;
 }
 
-void Process::addChild(ID childID) {
-  if (childID == identity) throw std::invalid_argument("A process cannot be its own child");
+void GraphProcess::addChild(ID childID) {
+  if (childID == identity) throw std::invalid_argument("A GraphProcess cannot be its own child");
   if (std::find(children.begin(), children.end(), childID) == children.end()) {
     children.push_back(childID);
   }
 }
 
-void Process::setParent(ID parentID) {
-  if (parentID == identity) throw std::invalid_argument("A process cannot be its own parent");
+void GraphProcess::setParent(ID parentID) {
+  if (parentID == identity) throw std::invalid_argument("A GraphProcess cannot be its own parent");
   if (parent && parent != parentID) {
     throw std::invalid_argument("Process already has a different parent");
   }

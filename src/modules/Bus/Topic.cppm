@@ -1,16 +1,15 @@
-export module EventChannel;
+export module Topic;
 
 import std;
 export import SubscriptionPolicies;
 export import StoragePolicies;
 
-// Each EventChannel stores subscribers for exactly one event/message type.
+// Each Topid stores subscribers for exactly one event/message type.
 // Ideal for single-threaded, high-frequency, or policy-enforced local pipelines
 // where DataBus's mutexes and std::type_index lookups are unnecessary.
-export template <typename MessageT,
-                 template <typename> class Container = VectorPolicy,
-                 std::derived_from<SubscriptionPolicy> SubscriptionPolicyT = NoopSubscriptionPolicy>
-class EventChannel {
+export template 
+<typename MessageT,template <typename> class Container = VectorPolicy,std::derived_from<SubscriptionPolicy> SubscriptionPolicyT = NoopSubscriptionPolicy>
+class Topic {
 private:
     struct Subscriber_T {
         std::string identifier;
@@ -23,8 +22,8 @@ private:
 public:
     using message_type = MessageT;
 
-    EventChannel() = default;
-    explicit EventChannel(SubscriptionPolicyT policy)
+    Topic() = default;
+    explicit Topic(SubscriptionPolicyT policy)
         : subscriptionPolicy(std::move(policy)) {}
 
     template <typename Fn>

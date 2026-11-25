@@ -1,3 +1,8 @@
+
+module;
+
+#include <sys/types.h>
+
 export module FunctionalityTest;
 
 import std;
@@ -5,7 +10,8 @@ import Components;
 import DatabaseComponent;
 import DataBus;
 import EventType;
-import Graph;
+import GraphProcess;
+import WireProtocols;
 import GraphBridgeComponent;
 import HybridBus;
 import LoggingComponent;
@@ -13,6 +19,9 @@ import NotifyingComponent;
 import Pqxx;
 import StaticEventBus;
 import TaskPolicies;
+
+using Process = GraphProcess;
+using namespace protocol;
 
 namespace test {
 
@@ -320,7 +329,7 @@ Message encodeNotifyEvent(const NotifyEvent &event) {
   const auto len = static_cast<std::uint32_t>(event.message.size());
 
   out.resize(sizeof(typeRaw) + sizeof(ticks) + sizeof(len) + len);
-  std::size_t offset = 0;
+  ssize_t offset = 0;
 
   std::memcpy(out.data() + offset, &typeRaw, sizeof(typeRaw));
   offset += sizeof(typeRaw);
@@ -341,13 +350,13 @@ NotifyEvent decodeNotifyEvent(std::span<const std::uint8_t> bytes) {
   using Duration = decltype(NotifyEvent::now)::duration;
   using Rep = Duration::rep;
 
-  constexpr std::size_t headerSize =
+  constexpr ssize_t headerSize =
       sizeof(std::uint8_t) + sizeof(Rep) + sizeof(std::uint32_t);
   if (bytes.size() < headerSize) {
     throw std::runtime_error("Corrupted NotifyEvent payload");
   }
 
-  std::size_t offset = 0;
+  ssize_t offset = 0;
   std::uint8_t typeRaw{};
   std::memcpy(&typeRaw, bytes.data() + offset, sizeof(typeRaw));
   offset += sizeof(typeRaw);
@@ -407,10 +416,10 @@ void demonstrateGraphBridge() {
   bridgeA.start();
   bridgeB.start();
 
-  std::size_t receivedOnB{0};
-  std::size_t receivedOnA{0};
-  std::size_t totalPublishesOnA{0};
-  std::size_t totalPublishesOnB{0};
+  ssize_t receivedOnB{0};
+  ssize_t receivedOnA{0};
+  ssize_t totalPublishesOnA{0};
+  ssize_t totalPublishesOnB{0};
 
    systemABus.subscribe<NotifyEvent>(
       "system-a-counter", [&](const NotifyEvent &) { ++totalPublishesOnA; });
@@ -476,9 +485,9 @@ systemBBus.subscribe<NotifyEvent>(
 
 // Example custom policy: limits a single MessageBus channel to at most MaxSubs
 // subscribers
-template <std::size_t MaxSubs>
+template <ssize_t MaxSubs>
 struct BoundedSubscriptionPolicy : SubscriptionPolicy {
-  std::size_t active{0};
+  ssize_t active{0};
 
   void subscribe(std::string_view identifier) {
     if (active >= MaxSubs) {
@@ -495,11 +504,11 @@ struct BoundedSubscriptionPolicy : SubscriptionPolicy {
   }
 };
 void demonstratePolicyEventBuses(DataBus &mainBus) {
-  std::println("=== 5. Policy-Based EventChannel & StaticEventBus ===");
+  std::println("=== 5. Policy-Based Topic & StaticEventBus ===");
 
-  // 1. Single-type EventChannel with BoundedSubscriptionPolicy<1> and move-only
+  // 1. Single-type Topic with BoundedSubscriptionPolicy<1> and move-only
   // state
-  EventChannel<TemperatureUpdated, VectorPolicy, BoundedSubscriptionPolicy<1>>
+  Topic<TemperatureUpdated, VectorPolicy, BoundedSubscriptionPolicy<1>>
       exclusiveSensorChannel;
 
   auto runningPeak = std::make_unique<float>(-273.15f);
@@ -509,7 +518,7 @@ void demonstratePolicyEventBuses(DataBus &mainBus) {
         if (ev.celsius > *peak) {
           *peak = ev.celsius;
         }
-        std::println("[EventChannel] Sample {:.1f} C (session peak={:.1f} C)",
+        std::println("[Topic] Sample {:.1f} C (session peak={:.1f} C)",
                      ev.celsius, *peak);
       });
 
@@ -517,7 +526,7 @@ void demonstratePolicyEventBuses(DataBus &mainBus) {
     exclusiveSensorChannel.subscribe("intruder",
                                      [](const TemperatureUpdated &) {});
   } catch (const std::length_error &ex) {
-    std::println("[EventChannel Policy] Rejected 2nd subscriber: {}",
+    std::println("[Topic Policy] Rejected 2nd subscriber: {}",
                  ex.what());
   }
 
@@ -531,7 +540,7 @@ void demonstratePolicyEventBuses(DataBus &mainBus) {
                sizeof(fastLocalBus));
 
   float sumCelsius = 0.0f;
-  std::size_t sampleCount = 0;
+  ssize_t sampleCount = 0;
 
   fastLocalBus.subscribe<TemperatureUpdated>("local-aggregator",
                                              [&](const TemperatureUpdated &ev) {
@@ -573,19 +582,19 @@ void demonstrateHybridBus(DataBus &mainBus) {
   HybridBus<TemperatureUpdated, LogEntry> hybrid{mainBus};
 
   // --- Stage 1: Sliding-Window Anomaly Detector on the Hot Path ----------
-  constexpr std::size_t WindowSize = 4;
+  constexpr ssize_t WindowSize = 4;
   std::array<float, WindowSize> window{};
-  std::size_t sampleCount = 0;
-  std::size_t spikeCount = 0;
-  std::size_t suppressedDebugLogs = 0;
+  ssize_t sampleCount = 0;
+  ssize_t spikeCount = 0;
+  ssize_t suppressedDebugLogs = 0;
   bool incidentMode = false;
 
   auto movingAverage = [&]() -> float {
-    const std::size_t count = std::min(sampleCount, WindowSize);
+    const ssize_t count = std::min(sampleCount, WindowSize);
     if (count == 0)
       return 0.0f;
     float sum = 0.0f;
-    for (std::size_t i = 0; i < count; ++i)
+    for (ssize_t i = 0; i < count; ++i)
       sum += window[i];
     return sum / static_cast<float>(count);
   };
@@ -649,8 +658,8 @@ void demonstrateHybridBus(DataBus &mainBus) {
   localGateway.start();
   remoteGateway.start();
 
-  std::size_t mainBusTempCount = 0;
-  std::size_t remoteOpsTempCount = 0;
+  ssize_t mainBusTempCount = 0;
+  ssize_t remoteOpsTempCount = 0;
 
   mainBus.subscribe<TemperatureUpdated>(
       "main-temp-auditor",
@@ -724,15 +733,15 @@ void demonstrateHybridBus(DataBus &mainBus) {
       "bench-dynamic",
       [&](const TemperatureUpdated &ev) { sink = ev.celsius; });
 
-  constexpr std::size_t Iterations = 10'000;
+  constexpr ssize_t Iterations = 10'000;
 
   const auto t0 = std::chrono::steady_clock::now();
-  for (std::size_t i = 0; i < Iterations; ++i) {
+  for (ssize_t i = 0; i < Iterations; ++i) {
     hybrid.publish(TemperatureUpdated{.celsius = 50.0f});
   }
   const auto t1 = std::chrono::steady_clock::now();
 
-  for (std::size_t i = 0; i < Iterations; ++i) {
+  for (ssize_t i = 0; i < Iterations; ++i) {
     mainBus.publish(TemperatureUpdated{.celsius = 50.0f});
   }
   const auto t2 = std::chrono::steady_clock::now();

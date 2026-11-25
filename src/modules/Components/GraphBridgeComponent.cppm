@@ -24,7 +24,13 @@ import std;
 import Components;
 import DataBus;
 import EventType;
-import Graph;
+import GraphProcess;
+import WireProtocols;
+import CentralCoordinatorIDGen;
+
+using Process = GraphProcess;
+using Channel = GraphProcess::Channel;
+using namespace protocol;
 
 export enum class BridgeTopology : std::uint8_t {
     Hierarchical, // bridge is parent root, bridgeOther is child
@@ -157,11 +163,14 @@ public:
                     std::memcpy(framed.data() + sizeof(EventTag), body.data(), body.size());
                 }
 
-                localProcess_.start(GraphFrame{
-                    .waveID = idGen_.generate_id(),
-                    .payload = std::move(framed),
-                    .kind = FrameKind::Data
-                });
+               localProcess_.start(GraphFrame{
+    idGen_.generate_id(),
+    localProcess_.identity,
+    std::move(framed),
+    FrameKind::Data
+});
+
+
             });
         };
 

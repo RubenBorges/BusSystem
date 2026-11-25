@@ -1,12 +1,21 @@
 module;
 
 #include <sys/socket.h>
+#include <cstdio>
+#include <cerrno>
+#include <cstdint>
 
-export module GraphDemo;
-
-import Graph;
-
+export module GraphTest;
 import std;
+import GraphProcess;
+import Wire;
+import WireProtocols;
+import CentralCoordinatorIDGen;
+
+using Process = GraphProcess;
+using namespace protocol;
+
+
 
 namespace {
 
@@ -98,40 +107,42 @@ void testLocalTreeLifecycle() {
     };
 
     // Control traffic must not depend on the application payload's contents.
-    const GraphFrame textThatLooksLikeControl{501, {'C', 'L', 'E', 'A', 'N', 'U', 'P'}, FrameKind::Data};
+const GraphFrame textThatLooksLikeControl{501, root.identity, {'C', 'L', 'E', 'A', 'N', 'U', 'P'}, FrameKind::Data};
+const GraphFrame emptyData{502, root.identity, {}, FrameKind::Data};
+const GraphFrame anotherWave{503, root.identity, {0, 1, 2, 255}, FrameKind::Data};
     root.start(textThatLooksLikeControl);
     requireCompletedAndCleaned(textThatLooksLikeControl.waveID);
 
     // An empty application payload is still data because its frame kind is explicit.
-    const GraphFrame emptyData{502, {}, FrameKind::Data};
     root.start(emptyData);
     requireCompletedAndCleaned(emptyData.waveID);
 
     // Exercise several independent waves and ensure completed waves cannot restart.
-    const GraphFrame anotherWave{503, {0, 1, 2, 255}, FrameKind::Data};
+
     root.start(anotherWave);
     requireCompletedAndCleaned(anotherWave.waveID);
     root.start(anotherWave);
     requireCompletedAndCleaned(anotherWave.waveID);
 
-    // Replayed data, acknowledgements, and cleanup must not change completed state.
-    branch.receive(textThatLooksLikeControl);
-    root.receive(GraphFrame{501, {}, FrameKind::Acknowledgement});
-    branch.receive(GraphFrame{501, {}, FrameKind::Cleanup});
-    requireCompletedAndCleaned(501);
+  // Replayed data, acknowledgements, and cleanup must not change completed state.
+branch.receive(textThatLooksLikeControl);
+root.receive(GraphFrame{501, branch.identity, {}, FrameKind::Acknowledgement});
+branch.receive(GraphFrame{501, root.identity, {}, FrameKind::Cleanup});
+requireCompletedAndCleaned(501);
 
-    // A non-root process cannot initiate a root wave.
-    leftLeaf.start(GraphFrame{504, {'x'}, FrameKind::Data});
-    require(!leftLeaf.isWaveCompleted(504), "A child process incorrectly started a root wave");
+// A non-root process cannot initiate a root wave.
+leftLeaf.start(GraphFrame{504, leftLeaf.identity, {'x'}, FrameKind::Data});
+require(!leftLeaf.isWaveCompleted(504), "A child process incorrectly started a root wave");
 
-    requireThrows<std::invalid_argument>(
-        [&] { root.start(GraphFrame{505, {}, FrameKind::Acknowledgement}); },
-        "Root accepted a non-data frame as a new wave"
-    );
+requireThrows<std::invalid_argument>(
+    [&] { root.start(GraphFrame{505, root.identity, {}, FrameKind::Acknowledgement}); },
+    "Root accepted a non-data frame as a new wave"
+);
 
-    Process singleton(500);
-    singleton.start(GraphFrame{506, {}, FrameKind::Data});
-    require(singleton.isWaveCompleted(506), "A root with no children did not complete its wave");
+Process singleton(500);
+singleton.start(GraphFrame{506, singleton.identity, {}, FrameKind::Data});
+require(singleton.isWaveCompleted(506), "A root with no children did not complete its wave");
+
 }
 
 class FrameCollector {
@@ -148,14 +159,14 @@ void testWireFrameRoundTrip() {
     auto sender = std::make_shared<Wire>(sockets[0]);
     Wire receiver(sockets[1]);
     FrameCollector collector;
-
     const std::vector<GraphFrame> expected{
-        {601, {}, FrameKind::Data},
-        {602, {'C', 'L', 'E', 'A', 'N', 'U', 'P'}, FrameKind::Data},
-        {603, {0, 255, 17}, FrameKind::Acknowledgement},
-        {604, {}, FrameKind::Cleanup},
-        {605, {0, 0, 0, 1, 0, 0, 0, 10, 0, 0, 0, 11}, FrameKind::Position}
-    };
+    {601, 10, {}, FrameKind::Data},
+    {602, 10, {'C', 'L', 'E', 'A', 'N', 'U', 'P'}, FrameKind::Data},
+    {603, 11, {0, 255, 17}, FrameKind::Acknowledgement},
+    {604, 10, {}, FrameKind::Cleanup},
+    {605, 10, {0, 0, 0, 1, 0, 0, 0, 10, 0, 0, 0, 11}, FrameKind::Position}
+};
+
 
     for (const GraphFrame& frame : expected) {
         require(sender->sendFrame(frame), "Wire failed to send a frame");
@@ -209,31 +220,30 @@ void testSocketBackedGraphLifecycle() {
 
     root.registerChannel(
         firstChild.identity,
-        SocketChannel(std::make_shared<Wire>(firstSockets[0]))
+SocketChannel(firstSockets[0])
     );
     firstChild.registerChannel(
         root.identity,
-        SocketChannel(std::make_shared<Wire>(firstSockets[1]))
-    );
+SocketChannel(firstSockets[1])    );
     root.registerChannel(
         secondChild.identity,
-        SocketChannel(std::make_shared<Wire>(secondSockets[0]))
+        SocketChannel(secondSockets[0])
     );
     secondChild.registerChannel(
         root.identity,
-        SocketChannel(std::make_shared<Wire>(secondSockets[1]))
+        SocketChannel(secondSockets[1])
     );
 
     constexpr WaveID waveID = 701;
-    const GraphFrame frame{waveID, {'s', 'o', 'c', 'k', 'e', 't'}, FrameKind::Data};
+    
+const GraphFrame frame{waveID, root.identity, {'s', 'o', 'c', 'k', 'e', 't'}, FrameKind::Data};
     root.start(frame);
     root.start(frame);
 
     firstChild.pollChannels();
     root.pollChannels();
     require(firstChild.isWaveCompleted(waveID), "First socket child did not complete its wave");
-    require(!root.isWaveCompleted(waveID),
-            "Root completed before receiving acknowledgements from every child");
+    require(!root.isWaveCompleted(waveID),"Root completed before receiving acknowledgements from every child");
 
     secondChild.pollChannels();
 
@@ -248,9 +258,8 @@ void testSocketBackedGraphLifecycle() {
     require(secondChild.isWaveCleaned(waveID), "Second socket child did not receive cleanup");
 }
 
-} // namespace
-
-int GraphDemo() {
+};
+export int  GraphDemo() {
     const std::vector<std::pair<std::string, std::function<void()>>> tests{
         {"ID generation and validation", testIdGeneration},
         {"Topology validation", testTopologyValidation},
@@ -259,10 +268,10 @@ int GraphDemo() {
         {"Position propagation", testPositionPropagation},
         {"Socket-backed graph lifecycle", testSocketBackedGraphLifecycle}
     };
-
+    
     size_t failures = 0;
     std::println("Running {} graph integration tests...", tests.size());
-
+    
     for (const auto& [name, test] : tests) {
         try {
             test();
@@ -272,11 +281,12 @@ int GraphDemo() {
             std::println("[FAIL] {}: {}", name, error.what());
         }
     }
-
+    
     std::println(
         "\n{} tests passed; {} failed.",
         tests.size() - failures,
         failures
     );
     return failures == 0 ? 0 : 1;
-}
+ };
+

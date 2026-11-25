@@ -1,0 +1,331 @@
+--- Cleaning old install directory ---
+--- Configuring, Building, and Installing (release) ---
+Executing workflow step 1 of 3: configure preset "linux-release"
+
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/boopy/dev/Projects/DistributedDatabus_System/.build/linux-release
+
+Executing workflow step 2 of 3: build preset "release-build"
+
+[1/46] Generating CXX dyndep file 'src/CMakeFiles/@cmake_cxx_std@synth_0.dir/CXX.dd'
+[2/45] Generating CXX dyndep file src/CMakeFiles/distributedBusSystem.dir/CXX.dd
+[3/5] Building CXX object src/CMakeFiles/distributedBusSystem.dir/modules/Tests/FunctionalityTest.cppm.o
+FAILED: [code=1] src/CMakeFiles/distributedBusSystem.dir/modules/Tests/FunctionalityTest.cppm.o src/CMakeFiles/distributedBusSystem.dir/FunctionalityTest.gcm 
+/usr/bin/c++  -I/home/boopy/dev/Projects/DistributedDatabus_System/src/include -I/home/boopy/dev/Projects/DistributedDatabus_System/src/schemas -O3 -DNDEBUG -std=c++23 -fno-gnu-unique -MD -MT src/CMakeFiles/distributedBusSystem.dir/modules/Tests/FunctionalityTest.cppm.o -MF src/CMakeFiles/distributedBusSystem.dir/modules/Tests/FunctionalityTest.cppm.o.d -fmodules-ts -fmodule-mapper=src/CMakeFiles/distributedBusSystem.dir/modules/Tests/FunctionalityTest.cppm.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/distributedBusSystem.dir/modules/Tests/FunctionalityTest.cppm.o -c /home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In function ‘protocol::Message@WireProtocols test::encodeNotifyEvent(const NotifyEvent@EventType&)’:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:327:3: error: ‘ssize_t’ was not declared in this scope
+  327 |   ssize_t offset = 0;
+      |   ^~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:329:28: error: ‘offset’ was not declared in this scope
+  329 |   std::memcpy(out.data() + offset, &typeRaw, sizeof(typeRaw));
+      |                            ^~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In function ‘NotifyEvent@EventType test::decodeNotifyEvent(std::span<const unsigned char>)’:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:348:13: error: ‘ssize_t’ does not name a type
+  348 |   constexpr ssize_t headerSize =
+      |             ^~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:350:22: error: ‘headerSize’ was not declared in this scope
+  350 |   if (bytes.size() < headerSize) {
+      |                      ^~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:354:3: error: ‘ssize_t’ was not declared in this scope
+  354 |   ssize_t offset = 0;
+      |   ^~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:356:40: error: ‘offset’ was not declared in this scope
+  356 |   std::memcpy(&typeRaw, bytes.data() + offset, sizeof(typeRaw));
+      |                                        ^~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In function ‘void test::demonstrateGraphBridge()’:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:414:3: error: ‘ssize_t’ was not declared in this scope
+  414 |   ssize_t receivedOnB{0};
+      |   ^~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:415:10: error: expected ‘;’ before ‘receivedOnA’
+  415 |   ssize_t receivedOnA{0};
+      |          ^~~~~~~~~~~~
+      |          ;
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:416:10: error: expected ‘;’ before ‘totalPublishesOnA’
+  416 |   ssize_t totalPublishesOnA{0};
+      |          ^~~~~~~~~~~~~~~~~~
+      |          ;
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:417:10: error: expected ‘;’ before ‘totalPublishesOnB’
+  417 |   ssize_t totalPublishesOnB{0};
+      |          ^~~~~~~~~~~~~~~~~~
+      |          ;
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In lambda function:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:420:56: error: ‘totalPublishesOnA’ was not declared in this scope
+  420 |       "system-a-counter", [&](const NotifyEvent &) { ++totalPublishesOnA; });
+      |                                                        ^~~~~~~~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In lambda function:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:422:56: error: ‘totalPublishesOnB’ was not declared in this scope
+  422 |       "system-b-counter", [&](const NotifyEvent &) { ++totalPublishesOnB; });
+      |                                                        ^~~~~~~~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In lambda function:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:429:11: error: ‘receivedOnB’ was not declared in this scope
+  429 |         ++receivedOnB;
+      |           ^~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In lambda function:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:446:11: error: ‘receivedOnA’ was not declared in this scope
+  446 |         ++receivedOnA;
+      |           ^~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In function ‘void test::demonstrateGraphBridge()’:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:469:16: error: ‘receivedOnB’ was not declared in this scope
+  469 |                receivedOnB, totalPublishesOnB, receivedOnA, totalPublishesOnA);
+      |                ^~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:469:29: error: ‘totalPublishesOnB’ was not declared in this scope
+  469 |                receivedOnB, totalPublishesOnB, receivedOnA, totalPublishesOnA);
+      |                             ^~~~~~~~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:469:48: error: ‘receivedOnA’ was not declared in this scope
+  469 |                receivedOnB, totalPublishesOnB, receivedOnA, totalPublishesOnA);
+      |                                                ^~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:469:61: error: ‘totalPublishesOnA’ was not declared in this scope
+  469 |                receivedOnB, totalPublishesOnB, receivedOnA, totalPublishesOnA);
+      |                                                             ^~~~~~~~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: At global scope:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:483:11: error: ‘ssize_t’ has not been declared
+  483 | template <ssize_t MaxSubs>
+      |           ^~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:485:3: error: ‘ssize_t’ does not name a type [-Wtemplate-body]
+  485 |   ssize_t active{0};
+      |   ^~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In function ‘void test::demonstratePolicyEventBuses(DataBus@DataBus&)’:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:506:70: error: template argument 3 is invalid
+  506 |   Topic<TemperatureUpdated, VectorPolicy, BoundedSubscriptionPolicy<1>>
+      |                                                                      ^~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:510:26: error: request for member ‘subscribe’ in ‘exclusiveSensorChannel’, which is of non-class type ‘int’
+  510 |   exclusiveSensorChannel.subscribe(
+      |                          ^~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:521:28: error: request for member ‘subscribe’ in ‘exclusiveSensorChannel’, which is of non-class type ‘int’
+  521 |     exclusiveSensorChannel.subscribe("intruder",
+      |                            ^~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:528:26: error: request for member ‘publish’ in ‘exclusiveSensorChannel’, which is of non-class type ‘int’
+  528 |   exclusiveSensorChannel.publish(TemperatureUpdated{.celsius = 21.5f});
+      |                          ^~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:529:26: error: request for member ‘publish’ in ‘exclusiveSensorChannel’, which is of non-class type ‘int’
+  529 |   exclusiveSensorChannel.publish(TemperatureUpdated{.celsius = 24.8f});
+      |                          ^~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:530:26: error: request for member ‘unsubscribe’ in ‘exclusiveSensorChannel’, which is of non-class type ‘int’
+  530 |   exclusiveSensorChannel.unsubscribe("peak-tracker");
+      |                          ^~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:538:3: error: ‘ssize_t’ was not declared in this scope
+  538 |   ssize_t sampleCount = 0;
+      |   ^~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In lambda function:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:543:50: error: ‘sampleCount’ was not declared in this scope
+  543 |                                                ++sampleCount;
+      |                                                  ^~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In function ‘void test::demonstratePolicyEventBuses(DataBus@DataBus&)’:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:557:7: error: ‘sampleCount’ was not declared in this scope
+  557 |   if (sampleCount > 0) {
+      |       ^~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In function ‘void test::demonstrateHybridBus(DataBus@DataBus&)’:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:580:13: error: ‘ssize_t’ does not name a type
+  580 |   constexpr ssize_t WindowSize = 4;
+      |             ^~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:581:21: error: ‘WindowSize’ was not declared in this scope
+  581 |   std::array<float, WindowSize> window{};
+      |                     ^~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:581:31: error: template argument 2 is invalid
+  581 |   std::array<float, WindowSize> window{};
+      |                               ^
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:582:3: error: ‘ssize_t’ was not declared in this scope
+  582 |   ssize_t sampleCount = 0;
+      |   ^~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:583:10: error: expected ‘;’ before ‘spikeCount’
+  583 |   ssize_t spikeCount = 0;
+      |          ^~~~~~~~~~~
+      |          ;
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:584:10: error: expected ‘;’ before ‘suppressedDebugLogs’
+  584 |   ssize_t suppressedDebugLogs = 0;
+      |          ^~~~~~~~~~~~~~~~~~~~
+      |          ;
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In lambda function:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:588:11: error: ‘ssize_t’ does not name a type
+  588 |     const ssize_t count = std::min(sampleCount, WindowSize);
+      |           ^~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:589:9: error: ‘count’ was not declared in this scope; did you mean ‘std::count’?
+  589 |     if (count == 0)
+      |         ^~~~~
+      |         std::count
+In file included from /usr/include/c++/16/chrono:57,
+                 from /usr/include/boost/asio/detail/chrono.hpp:19,
+                 from /usr/include/boost/asio/io_context.hpp:23,
+                 from /home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Graph/WebSocketConnection.cppm:3,
+of module WebSocketConnection, imported at /home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Graph/GraphProcess.cppm:15,
+of module GraphProcess, imported at /home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:8:
+/usr/include/c++/16/bits/stl_algo.h:4046:5: note: ‘std::count’ declared here
+ 4046 |     count(_InputIterator __first, _InputIterator __last, const _Tp& __value)
+      |     ^~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:592:29: error: ‘count’ was not declared in this scope; did you mean ‘std::count’?
+  592 |     for (ssize_t i = 0; i < count; ++i)
+      |                             ^~~~~
+      |                             std::count
+/usr/include/c++/16/bits/stl_algo.h:4046:5: note: ‘std::count’ declared here
+ 4046 |     count(_InputIterator __first, _InputIterator __last, const _Tp& __value)
+      |     ^~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:592:25: error: ‘i’ was not declared in this scope
+  592 |     for (ssize_t i = 0; i < count; ++i)
+      |                         ^
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:594:37: error: ‘count’ was not declared in this scope; did you mean ‘std::count’?
+  594 |     return sum / static_cast<float>(count);
+      |                                     ^~~~~
+      |                                     std::count
+/usr/include/c++/16/bits/stl_algo.h:4046:5: note: ‘std::count’ declared here
+ 4046 |     count(_InputIterator __first, _InputIterator __last, const _Tp& __value)
+      |     ^~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In lambda function:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:600:9: error: ‘suppressedDebugLogs’ was not declared in this scope
+  600 |       ++suppressedDebugLogs; // Absorbed on fast-path without touching mainBus
+      |         ^~~~~~~~~~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In lambda function:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:613:16: error: ‘sampleCount’ was not declared in this scope
+  613 |         window[sampleCount % WindowSize] = ev.celsius;
+      |                ^~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:628:13: error: ‘spikeCount’ was not declared in this scope
+  628 |           ++spikeCount;
+      |             ^~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In function ‘void test::demonstrateHybridBus(DataBus@DataBus&)’:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:656:10: error: expected ‘;’ before ‘mainBusTempCount’
+  656 |   ssize_t mainBusTempCount = 0;
+      |          ^~~~~~~~~~~~~~~~~
+      |          ;
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:657:10: error: expected ‘;’ before ‘remoteOpsTempCount’
+  657 |   ssize_t remoteOpsTempCount = 0;
+      |          ^~~~~~~~~~~~~~~~~~~
+      |          ;
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In lambda function:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:661:43: error: ‘mainBusTempCount’ was not declared in this scope
+  661 |       [&](const TemperatureUpdated &) { ++mainBusTempCount; });
+      |                                           ^~~~~~~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In lambda function:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:664:11: error: ‘remoteOpsTempCount’ was not declared in this scope
+  664 |         ++remoteOpsTempCount;
+      |           ^~~~~~~~~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm: In function ‘void test::demonstrateHybridBus(DataBus@DataBus&)’:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:675:16: error: ‘sampleCount’ was not declared in this scope
+  675 |                sampleCount, spikeCount, suppressedDebugLogs, mainBusTempCount,
+      |                ^~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:675:29: error: ‘spikeCount’ was not declared in this scope
+  675 |                sampleCount, spikeCount, suppressedDebugLogs, mainBusTempCount,
+      |                             ^~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:675:41: error: ‘suppressedDebugLogs’ was not declared in this scope
+  675 |                sampleCount, spikeCount, suppressedDebugLogs, mainBusTempCount,
+      |                                         ^~~~~~~~~~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:675:62: error: ‘mainBusTempCount’ was not declared in this scope
+  675 |                sampleCount, spikeCount, suppressedDebugLogs, mainBusTempCount,
+      |                                                              ^~~~~~~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:676:16: error: ‘remoteOpsTempCount’ was not declared in this scope
+  676 |                remoteOpsTempCount);
+      |                ^~~~~~~~~~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:695:7: error: cannot convert ‘test::demonstrateHybridBus(DataBus@DataBus&)::<lambda(const GetSystemHealth@EventType&)>’ to ‘std::function<HealthReport@EventType(const GetSystemHealth@EventType&)>’
+  695 |       [&](const GetSystemHealth &req) {
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |       |
+      |       test::demonstrateHybridBus(DataBus@DataBus&)::<lambda(const GetSystemHealth@EventType&)>
+  696 |         return HealthReport{
+      |         ~~~~~~~~~~~~~~~~~~~~
+  697 |             .ok = (spikeCount <= 2),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~
+  698 |             .status = std::format(
+      |             ~~~~~~~~~~~~~~~~~~~~~~
+  699 |                 "Subsystem {} | avg={:.1f} C | spikes={} | promoted={}",
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  700 |                 req.subsystemId, movingAverage(), spikeCount, incidentMode)};
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  701 |       });
+      |       ~
+In module HybridBus, imported at /home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:11:
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Bus/HybridBus.cppm:68:58: note: initializing argument 1 of ‘void HybridBus@HybridBus<HotEvents>::provide(std::function<Response(const Request&)>) [with Request = GetSystemHealth@EventType; Response = HealthReport@EventType; HotEvents = {TemperatureUpdated@EventType, LogEntry@EventType}]’
+   68 |     void provide(std::function<Response(const Request&)> handler) {
+      |                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:731:13: error: ‘ssize_t’ does not name a type
+  731 |   constexpr ssize_t Iterations = 10'000;
+      |             ^~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:734:15: error: expected ‘;’ before ‘i’
+  734 |   for (ssize_t i = 0; i < Iterations; ++i) {
+      |               ^~
+      |               ;
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:734:27: error: ‘Iterations’ was not declared in this scope
+  734 |   for (ssize_t i = 0; i < Iterations; ++i) {
+      |                           ^~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:734:23: error: ‘i’ was not declared in this scope
+  734 |   for (ssize_t i = 0; i < Iterations; ++i) {
+      |                       ^
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:739:15: error: expected ‘;’ before ‘i’
+  739 |   for (ssize_t i = 0; i < Iterations; ++i) {
+      |               ^~
+      |               ;
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:739:27: error: ‘Iterations’ was not declared in this scope
+  739 |   for (ssize_t i = 0; i < Iterations; ++i) {
+      |                           ^~~~~~~~~~
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:739:23: error: ‘i’ was not declared in this scope
+  739 |   for (ssize_t i = 0; i < Iterations; ++i) {
+      |                       ^
+/home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm:750:16: error: ‘Iterations’ was not declared in this scope
+  750 |                Iterations, hotNs / 1000,
+      |                ^~~~~~~~~~
+ninja: build stopped: subcommand failed.
+--- Cleaning old install directory ---
+--- Configuring, Building, and Installing (release) ---
+Executing workflow step 1 of 3: configure preset "linux-release"
+
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/boopy/dev/Projects/DistributedDatabus_System/.build/linux-release
+
+Executing workflow step 2 of 3: build preset "release-build"
+
+[1/47] Generating CXX dyndep file 'src/CMakeFiles/@cmake_cxx_std@synth_0.dir/CXX.dd'
+[2/46] Scanning /home/boopy/dev/Projects/DistributedDatabus_System/src/modules/Tests/FunctionalityTest.cppm for CXX dependencies
+[3/46] Generating CXX dyndep file src/CMakeFiles/distributedBusSystem.dir/CXX.dd
+[4/6] Building CXX object src/CMakeFiles/distributedBusSystem.dir/modules/Tests/FunctionalityTest.cppm.o
+[5/6] Building CXX object src/CMakeFiles/distributedBusSystem.dir/main.cpp.o
+FAILED: [code=1] src/CMakeFiles/distributedBusSystem.dir/main.cpp.o 
+/usr/bin/c++  -I/home/boopy/dev/Projects/DistributedDatabus_System/src/include -I/home/boopy/dev/Projects/DistributedDatabus_System/src/schemas -O3 -DNDEBUG -std=c++23 -fno-gnu-unique -MD -MT src/CMakeFiles/distributedBusSystem.dir/main.cpp.o -MF src/CMakeFiles/distributedBusSystem.dir/main.cpp.o.d -fmodules-ts -fmodule-mapper=src/CMakeFiles/distributedBusSystem.dir/main.cpp.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/distributedBusSystem.dir/main.cpp.o -c /home/boopy/dev/Projects/DistributedDatabus_System/src/main.cpp
+/home/boopy/dev/Projects/DistributedDatabus_System/src/main.cpp:6:1: fatal error: unknown compiled module interface: no such module
+    6 | import Graph;
+      | ^~~~~~
+compilation terminated.
+ninja: build stopped: subcommand failed.
+--- Cleaning old install directory ---
+--- Configuring, Building, and Installing (release) ---
+Executing workflow step 1 of 3: configure preset "linux-release"
+
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/boopy/dev/Projects/DistributedDatabus_System/.build/linux-release
+
+Executing workflow step 2 of 3: build preset "release-build"
+
+[1/47] Generating CXX dyndep file 'src/CMakeFiles/@cmake_cxx_std@synth_0.dir/CXX.dd'
+[2/46] Scanning /home/boopy/dev/Projects/DistributedDatabus_System/src/main.cpp for CXX dependencies
+[3/46] Generating CXX dyndep file src/CMakeFiles/distributedBusSystem.dir/CXX.dd
+[4/5] Building CXX object src/CMakeFiles/distributedBusSystem.dir/main.cpp.o
+FAILED: [code=1] src/CMakeFiles/distributedBusSystem.dir/main.cpp.o 
+/usr/bin/c++  -I/home/boopy/dev/Projects/DistributedDatabus_System/src/include -I/home/boopy/dev/Projects/DistributedDatabus_System/src/schemas -O3 -DNDEBUG -std=c++23 -fno-gnu-unique -MD -MT src/CMakeFiles/distributedBusSystem.dir/main.cpp.o -MF src/CMakeFiles/distributedBusSystem.dir/main.cpp.o.d -fmodules-ts -fmodule-mapper=src/CMakeFiles/distributedBusSystem.dir/main.cpp.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o src/CMakeFiles/distributedBusSystem.dir/main.cpp.o -c /home/boopy/dev/Projects/DistributedDatabus_System/src/main.cpp
+/home/boopy/dev/Projects/DistributedDatabus_System/src/main.cpp:2:1: fatal error: unknown compiled module interface: no such module
+    2 | import Graph;
+      | ^~~~~~
+compilation terminated.
+ninja: build stopped: subcommand failed.
+--- Cleaning old install directory ---
+--- Configuring, Building, and Installing (release) ---
+Executing workflow step 1 of 3: configure preset "linux-release"
+
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/boopy/dev/Projects/DistributedDatabus_System/.build/linux-release
+
+Executing workflow step 2 of 3: build preset "release-build"
+
+[1/47] Generating CXX dyndep file 'src/CMakeFiles/@cmake_cxx_std@synth_0.dir/CXX.dd'
+[2/46] Scanning /home/boopy/dev/Projects/DistributedDatabus_System/src/main.cpp for CXX dependencies
+[3/46] Generating CXX dyndep file src/CMakeFiles/distributedBusSystem.dir/CXX.dd
+[4/5] Building CXX object src/CMakeFiles/distributedBusSystem.dir/main.cpp.o
+[5/5] Linking CXX executable src/distributedBusSystem
+
+Executing workflow step 3 of 3: build preset "release-install"
+
+[0/1] Install the project...
+-- Install configuration: "Release"
+-- Installing: /home/boopy/dev/Projects/DistributedDatabus_System/DistributedDatabus_System/distributedBusSystem
+-- Up-to-date: /home/boopy/dev/Projects/DistributedDatabus_System/DistributedDatabus_System/bql.conf
+-- Up-to-date: /home/boopy/dev/Projects/DistributedDatabus_System/DistributedDatabus_System/rdvk.conf
+--- Done! Executable is in distributedBusSystem/ (or distributedBusSystem-win/) ---

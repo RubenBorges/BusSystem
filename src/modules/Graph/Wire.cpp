@@ -5,21 +5,15 @@ module;
 #include <sys/socket.h>
 #include <unistd.h>
 
-module Graph;
-
+module Wire;
 import std;
 
-Wire::Wire(int fd) : socket_fd(fd) {}
+using FileDescriptorType = int;
 
-Wire::~Wire() {
-    if (socket_fd >= 0) {
-        close(socket_fd);
-    }
-}
+Wire::Wire(FileDescriptorType fd) : socket_fd(fd) {}
+Wire::~Wire(){ if (socket_fd >= 0) close(socket_fd);}
 
-Wire::Wire(Wire&& other) noexcept : socket_fd(other.socket_fd), readBuffer(std::move(other.readBuffer)) {
-    other.socket_fd = -1;
-}
+Wire::Wire(Wire&& other) noexcept : socket_fd(other.socket_fd), readBuffer(std::move(other.readBuffer)) { other.socket_fd = -1;}
 
 Wire& Wire::operator=(Wire&& other) noexcept {
     if (this != &other) {
@@ -31,7 +25,7 @@ Wire& Wire::operator=(Wire&& other) noexcept {
     return *this;
 }
 
-bool Wire::sendFrame(const GraphFrame& frame) const {
+bool Wire::sendFrame(const protocol::GraphFrame& frame) const {
     if (socket_fd < 0) return false;
     if (frame.payload.size() > MAX_FRAME_PAYLOAD_SIZE ||
         frame.payload.size() > std::numeric_limits<uint32_t>::max()) {
@@ -41,7 +35,7 @@ bool Wire::sendFrame(const GraphFrame& frame) const {
         throw std::invalid_argument("Invalid frame kind");
     }
 
-    MessageHeader header;
+    protocol::MessageHeader header;
     header.magic = htonl(MAGIC_MARKER);
     header.waveId = htonl(static_cast<uint32_t>(frame.waveID));
     header.kind = static_cast<uint8_t>(frame.kind);
@@ -53,11 +47,11 @@ bool Wire::sendFrame(const GraphFrame& frame) const {
     const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&header);
     wirePacket.insert(wirePacket.end(), headerPtr, headerPtr + sizeof(MessageHeader));
     wirePacket.insert(wirePacket.end(), frame.payload.begin(), frame.payload.end());
-    uint32_t crc = htonl(compute_crc32(wirePacket.data(), wirePacket.size()));
+    uint32_t crc = htonl(protocol::compute_crc32(wirePacket.data(), wirePacket.size()));
     const uint8_t* crcPtr = reinterpret_cast<const uint8_t*>(&crc);
     wirePacket.insert(wirePacket.end(), crcPtr, crcPtr + sizeof(CRC32_t));
 
-    std::size_t total_sent = 0;
+  ssize_t total_sent = 0;
     while (total_sent < wirePacket.size()) {
         ssize_t sent = send(
             socket_fd,
@@ -69,7 +63,7 @@ bool Wire::sendFrame(const GraphFrame& frame) const {
             throw std::system_error(errno, std::generic_category(), "send");
         }
         if (sent == 0) return false;
-        total_sent += static_cast<std::size_t>(sent);
+        total_sent += static_cast<ssize_t>(sent);
     }
     return true;
 }

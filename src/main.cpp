@@ -3,7 +3,13 @@ import Components;
 import DatabaseComponent;
 import DataBus;
 import EventType;
-import Graph;
+
+// With:
+import GraphProcess;
+import WireProtocols;
+import CentralCoordinatorIDGen;
+
+
 import UtilitiesQL;
 import GraphBridgeComponent; 
 import LoggingComponent;
@@ -11,15 +17,19 @@ import NotifyingComponent;
 import TaskPolicies;
 import Pqxx;
 import DatabaseCredentials;
-import StaticEventBus; // Automatically exports EventChannel, SubscriptionPolicies, StoragePolicies
+import StaticEventBus; // Automatically exports Topic, SubscriptionPolicies, StoragePolicies
 import HybridBus;
 import FunctionalityTest;
 
+import GraphTest;
+using Process = GraphProcess;
+using namespace protocol;
 
 int main() {
     DataBus bus;
+    // /int res = GraphDemo();
     std::println("Size of Databus object: {}", sizeof(bus));
-    
+    auto i{GraphDemo()};
     LoggingComponent logger{bus, std::filesystem::path{"designed-system.log"}};
     NotifyingComponent notifier{bus};
     

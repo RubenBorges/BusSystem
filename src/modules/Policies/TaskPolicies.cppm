@@ -1,9 +1,12 @@
 export module TaskPolicies;
 
 import std;
-import Graph;
+import GraphProcess;
+import WireProtocols;
 
-
+using Process = GraphProcess;
+using WaveID = protocol::WaveID;
+using GraphFrame = protocol::GraphFrame;
 // ============================================================================
 //  Concepts
 // ============================================================================
