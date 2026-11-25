@@ -1,8 +1,9 @@
-export module TaskPolicies;
+moduel;
 
 import std;
 import Graph;
 
+export module TaskPolicies;
 // ============================================================================
 //  Concepts
 // ============================================================================
