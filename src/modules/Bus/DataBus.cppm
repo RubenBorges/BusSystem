@@ -5,10 +5,10 @@ module;
 *   DataBus acts as a central router that knows nothing about event types ahead of time. 
 *   Any component can dynamically register or query any event type at runtime across multiple threads.
 */
+import std;
 
 export module DataBus;
 
-import std;
 
 // Central messaging hub: components publish events and subscribe to them, or
 // provide/call request-response handlers. The bus knows nothing about storage,
