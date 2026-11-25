@@ -5,6 +5,8 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBPQ REQUIRED IMPORTED_TARGET libpq)
 find_package(cppgraphqlgen CONFIG REQUIRED)
 
+set(PROJECT_NAME distributedBusSystem)
+
 add_library(custom_pqxx SHARED IMPORTED)
 set_target_properties(custom_pqxx PROPERTIES
     IMPORTED_LOCATION "/usr/lib/libpqxx.so"
@@ -12,62 +14,13 @@ set_target_properties(custom_pqxx PROPERTIES
 )
 target_link_libraries(custom_pqxx INTERFACE PkgConfig::LIBPQ)
 
-# main.cpp + all `module Graph;` implementation (.cpp) files
-add_executable(${PROJECT_NAME}
-    main.cpp
-    modules/Graph/Graph.cpp
-    modules/Graph/CentralCoordinatorIDGen.cpp
-    modules/Graph/WebSocketConnection.cpp
-    modules/Graph/Wire.cpp
-)
-
-# C++20/26 module interface (.cppm) files
-target_sources(${PROJECT_NAME}
-    PRIVATE
-        FILE_SET CXX_MODULES
-        BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
-        FILES
-            modules/Bus/DataBus.cppm
-            modules/Bus/EventChannel.cppm
-            modules/Bus/HybridBus.cppm
-            modules/Bus/StaticEventBus.cppm
-            modules/Components/Components.cppm
-            modules/Components/DatabaseComponent.cppm
-            modules/Components/GraphBridgeComponent.cppm
-            modules/Components/LoggingComponent.cppm
-            modules/Components/NotifyingComponent.cppm
-            modules/Database/DatabaseCredentials.cppm
-            modules/Database/pqxx.cppm
-            modules/Database/UtilitiesQL.cppm
-            modules/Database/UtilitiesVK.cppm
-            modules/Events/EventType.cppm
-            modules/Graph/Graph.cppm
-            modules/Policies/Policies.cppm
-            modules/Policies/StoragePolicies.cppm
-            modules/Policies/SubscriptionPolicies.cppm
-            modules/Policies/TaskPolicies.cppm
-            modules/Tests/FunctionalityTest.cppm
-)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    Boost::headers
-    OpenSSL::SSL
-    OpenSSL::Crypto
-    Threads::Threads
-    custom_pqxx
-    cppgraphqlgen::graphqlservice
-    cppgraphqlgen::graphqljson
-)
-
 set(CONF_DIR "${CMAKE_SOURCE_DIR}/conf")
 set(SCHEMA_GRAPHQL "${CONF_DIR}/schema.graphql")
 set(GEN_SCHEMA_DIR "${CMAKE_SOURCE_DIR}/src/schemas")
 
-# Note: --prefix sets the base filename (e.g., distributedBusSystemSchema.h -> prefix "distributedBusSystem")
 set(GEN_SCHEMA_PREFIX "distributedBusSystem")
 set(GEN_SCHEMA_H "${GEN_SCHEMA_DIR}/${GEN_SCHEMA_PREFIX}Schema.h")
 
-# Every `type` in schema.graphql generates a <TypeName>Object.cpp file
 set(GEN_SCHEMA_SOURCES
     "${GEN_SCHEMA_DIR}/${GEN_SCHEMA_PREFIX}Schema.cpp"
     "${GEN_SCHEMA_DIR}/SystemHealthObject.cpp"
@@ -94,13 +47,57 @@ add_custom_command(
         --header-dir "${GEN_SCHEMA_DIR}"
         --source-dir "${GEN_SCHEMA_DIR}"
     DEPENDS "${SCHEMA_GRAPHQL}"
-    COMMENT "Generating ${PROJECT_NAME}Schema files"
+    COMMENT "Generating distributedBusSystemSchema files"
     VERBATIM
 )
 
-target_sources(${PROJECT_NAME} PRIVATE
+# 1. Executable + standard .cpp files (including generated schema .cpp files)
+add_executable(distributedBusSystem
+    main.cpp
+    modules/Graph/Graph.cpp
+    modules/Graph/CentralCoordinatorIDGen.cpp
+    modules/Graph/WebSocketConnection.cpp
+    modules/Graph/Wire.cpp
     "${GEN_SCHEMA_H}"
     ${GEN_SCHEMA_SOURCES}
+)
+
+# 2. C++20/26 module interface (.cppm) files ONLY
+target_sources(distributedBusSystem
+    PRIVATE
+        FILE_SET CXX_MODULES
+        BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
+        FILES
+            modules/Bus/DataBus.cppm
+            modules/Bus/EventChannel.cppm
+            modules/Bus/HybridBus.cppm
+            modules/Bus/StaticEventBus.cppm
+            modules/Components/Components.cppm
+            modules/Components/DatabaseComponent.cppm
+            modules/Components/GraphBridgeComponent.cppm
+            modules/Components/LoggingComponent.cppm
+            modules/Components/NotifyingComponent.cppm
+            modules/Database/DatabaseCredentials.cppm
+            modules/Database/pqxx.cppm
+            modules/Database/UtilitiesQL.cppm
+            modules/Database/UtilitiesVK.cppm
+            modules/Events/EventType.cppm
+            modules/Graph/Graph.cppm
+            modules/Policies/Policies.cppm
+            modules/Policies/StoragePolicies.cppm
+            modules/Policies/SubscriptionPolicies.cppm
+            modules/Policies/TaskPolicies.cppm
+            modules/Tests/FunctionalityTest.cppm
+)
+
+target_link_libraries(distributedBusSystem PRIVATE
+    Boost::headers
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    Threads::Threads
+    custom_pqxx
+    cppgraphqlgen::graphqlservice
+    cppgraphqlgen::graphqljson
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -116,7 +113,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     )
 endif()
 
-target_include_directories(${PROJECT_NAME} PRIVATE
+target_include_directories(distributedBusSystem PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     "${GEN_SCHEMA_DIR}"
 )

@@ -1,0 +1,7 @@
+schema: schema.graphql
+generates:
+  src/generated/schema.hpp:
+    plugins:
+      - cpp
+    config:
+      namespace: generated # <-- Changed from 'designed'

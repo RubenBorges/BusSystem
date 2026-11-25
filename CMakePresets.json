@@ -4,13 +4,7 @@
         {
             "name": "base",
             "hidden": true,
-            "generator": "Ninja",
-            "environment": {
-                "MY_PROJECT_NAME": "distributedBusSystem"
-            },
-            "cacheVariables": {
-                "MY_PROJECT_NAME": "$env{MY_PROJECT_NAME}"
-            }
+            "generator": "Ninja"
         },
         {
             "name": "linux-dev",
@@ -19,7 +13,7 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_CXX_STANDARD": "26",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/$env{MY_PROJECT_NAME}"
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/${sourceDirName}"
             }
         },
         {
@@ -31,7 +25,7 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_CXX_STANDARD": "26",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/$env{MY_PROJECT_NAME}"
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/${sourceDirName}"
             }
         },
         {
@@ -49,7 +43,7 @@
                 "CMAKE_SYSTEM_NAME": "Windows",
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_CXX_STANDARD": "23",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/$env{MY_PROJECT_NAME}-win"
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/${sourceDirName}-win"
             }
         }
     ],

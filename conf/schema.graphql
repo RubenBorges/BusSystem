@@ -1,0 +1,89 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# GraphQL enums only allow identifiers (no integer values or bitshifts)
+enum MsgType {
+  NONE
+  NOTE
+  WARNING
+  ERROR
+  CRITICAL
+  SYS
+}
+
+enum TxStatus {
+  WAITING
+  FAILED
+  SUCCEEDED
+}
+
+# Extracted from DatabaseTx because GraphQL does not support nested enums
+enum TxMode {
+  READ
+  WRITE
+}
+
+type SystemHealth {
+  postgresConnected: Boolean!
+  valkeyConnected: Boolean!
+  activeNodes: Int!
+}
+
+type BusEvent {
+  id: ID!
+  channel: String!
+  payload: String!
+  status: TxStatus!
+}
+
+type TemperatureUpdated {
+  celsius: Float!
+}
+
+type GetSystemHealth {
+  subsystemId: Int!
+}
+
+type HealthReport {
+  ok: Boolean!
+  status: String!
+}
+
+type DatabaseTx {
+  mode: TxMode!
+  status: TxStatus!
+  # GraphQL has no 64-bit int or primitive union; ID or String is standard for XIDs
+  pgXid: ID!
+}
+
+type LogEntry {
+  type: MsgType!
+  source: String!
+  message: String!
+  # ISO-8601 String (or define a custom `scalar DateTime`)
+  timestamp: String!
+}
+
+type NotifyEvent {
+  type: MsgType!
+  timestamp: String!
+  message: String!
+}
+
+type InitFailEvent {
+  eventIdTag: ID!
+  componentName: String!
+}
+
+type Query {
+  health: SystemHealth!
+  event(id: ID!): BusEvent
+  events(channel: String, limit: Int = 20): [BusEvent!]!
+}
+
+type Mutation {
+  publishEvent(channel: String!, payload: String!): BusEvent!
+  updateEventStatus(id: ID!, status: TxStatus!): Boolean!
+}

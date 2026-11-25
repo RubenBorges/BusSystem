@@ -1,6 +1,6 @@
 CompileFlags:
-  CompilationDatabase: .build/linux-*
-  CompilationDatabase: .build/linux-*
+  CompilationDatabase: .build/linux-release
+  CompilationDatabase: .build/linux-dev
 
   Add:
     - -std=c++26
