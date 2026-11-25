@@ -25,7 +25,14 @@ import Components;
 import DataBus;
 import EventType;
 import Graph;
+
+export enum class BridgeTopology : std::uint8_t {
+    Hierarchical, // bridge is parent root, bridgeOther is child
+    PeerToPeer    // both gateways act as peer roots (bidirectional waves)
+};
+
 export class GraphBridgeComponent final : public Component<> {
+
 private:
     using EventTag = std::uint64_t;
     using DecoderFn = std::function<void(std::span<const std::uint8_t>)>;
@@ -197,7 +204,11 @@ public:
         localProcess_.registerChannel(remotePeerId, std::move(outboundChannel));
     }
 
-    static void bridgeInMemory(GraphBridgeComponent& bridge, GraphBridgeComponent& bridgeOther) {
+    static void bridgeInMemory(
+        GraphBridgeComponent& bridge,
+        GraphBridgeComponent& bridgeOther,
+        BridgeTopology topology = BridgeTopology::Hierarchical) {
+        const bool otherIsUpstream = (topology == BridgeTopology::Hierarchical);
         bridge.connectPeer(
             bridgeOther.localProcess_.identity,
             PointerChannel<Process>(&bridgeOther.localProcess_),
@@ -206,10 +217,9 @@ public:
         bridgeOther.connectPeer(
             bridge.localProcess_.identity,
             PointerChannel<Process>(&bridge.localProcess_),
-            /*isUpstreamParent=*/true
+            otherIsUpstream
         );
     }
-
     void poll() {
         localProcess_.pollChannels();
     }

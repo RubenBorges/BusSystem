@@ -35,6 +35,7 @@ target_sources(DesignedSystem
             modules/Bus/DataBus.cppm
             modules/Bus/EventChannel.cppm
             modules/Bus/StaticEventBus.cppm
+            modules/Bus/HybridBus.cppm
             modules/Events/EventType.cppm
             modules/Components/Components.cppm
             modules/Components/DatabaseComponent.cppm
@@ -47,7 +48,9 @@ target_sources(DesignedSystem
             modules/Policies/Policies.cppm
             modules/Database/UtilitiesQL.cppm
             modules/Database/pqxx.cppm
+            modules/Database/DatabaseCredentials.cppm
             modules/Graph/Graph.cppm
+            modules/Tests/FunctionalityTest.cppm
 )
 
 target_link_libraries(DesignedSystem PRIVATE

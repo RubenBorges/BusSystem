@@ -34,17 +34,13 @@ public:
   static constexpr std::string_view DefaultConnectionString{
       "dbname=postgres user=postgres hostaddr=127.0.0.1 port=5432"};
 
-  explicit DatabaseComponent(
-      DataBus &bus,
-      std::string connectionString = std::string{DefaultConnectionString})
+  explicit DatabaseComponent(DataBus &bus,std::string connectionString = std::string{DefaultConnectionString})
       : Base(bus), connStr_(std::move(connectionString)) {
     currentTransaction_.reserve(512);
     transactionArgs_.reserve(16);
   }
 
-  DatabaseComponent(DataBus &bus, ConfigFileTag,
-                    const std::filesystem::path &file)
-      : DatabaseComponent(bus, resolveConnectionString(file)) {}
+  DatabaseComponent(DataBus &bus, ConfigFileTag, const std::filesystem::path &file): DatabaseComponent(bus, resolveConnectionString(file)) {}
 
   // --- Lifecycle ---------------------------------------------------------
 
