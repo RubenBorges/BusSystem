@@ -1,4 +1,3 @@
-
 export module LoggingComponent;
 
 import std;
@@ -8,18 +7,14 @@ import EventType;
 export class LoggingComponent final : public Component<> {
 public:
     explicit LoggingComponent(DataBus& bus, std::filesystem::path logFilePath)
-        : Component<>(bus), logFilePath_(std::move(logFilePath)) {}
+        : Component<>(bus, "logging-component"), logFilePath_(std::move(logFilePath)) {}
 
     ~LoggingComponent() override {
-        if (started_) {
-            bus_.unsubscribe<LogEntry>(SubscriptionId);
-        }
+        if (started_) bus_.unsubscribe<LogEntry>(name());
     }
 
     void start() override {
-        if (started_) {
-            return;
-        }
+        if (started_) return;
 
         if (!file_) {
             file_.reset(std::fopen(logFilePath_.string().c_str(), "ab"));
@@ -29,17 +24,15 @@ public:
             }
         }
 
-        bus_.subscribe<LogEntry>(SubscriptionId, [this](const LogEntry& entry) { write(entry); });
+        bus_.subscribe<LogEntry>(name(), [this](const LogEntry& entry) { write(entry); });
         started_ = true;
     }
 
     void stop() override {
-        if (!started_) {
-            return;
-        }
+        if (!started_) return;
 
         // Blocks until any in-flight write() callback finishes, guaranteeing exclusive file_ access below.
-        bus_.unsubscribe<LogEntry>(SubscriptionId);
+        bus_.unsubscribe<LogEntry>(name());
         started_ = false;
 
         if (file_) {
@@ -55,8 +48,6 @@ public:
     }
 
 private:
-    static constexpr std::string_view SubscriptionId{"logging-component"};
-
     using FilePtr = std::unique_ptr<std::FILE, decltype([](std::FILE* f) noexcept {
         if (f) std::fclose(f);
     })>;
@@ -77,9 +68,10 @@ private:
 
     void write(const LogEntry& entry) {
         std::print(file_.get(),
-            "[{:%Y-%m-%d %H:%M:%S}] [{}] {}\n",
+            "[{:%Y-%m-%d %H:%M:%S}] [{}] [{}] {}\n",
             entry.now,
             typeName(entry.type),
+            entry.source,
             entry.message);
 
         if (std::ferror(file_.get()) != 0) {
@@ -91,4 +83,3 @@ private:
     std::filesystem::path logFilePath_;
     FilePtr file_{nullptr};
 };
-

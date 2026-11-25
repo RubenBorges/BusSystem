@@ -46,17 +46,14 @@ public:
 
   void start() override {
     std::lock_guard lock(connMutex_);
-    if (this->started_ && isConnected()) {
-      return;
-    }
+    if (this->started_ && isConnected()) return;
+    
     try {
-      if (!isConnected()) {
-        conn_.emplace(connStr_);
-      }
+      if (!isConnected()) conn_.emplace(connStr_);
       this->started_ = true;
-    } catch (const std::exception &e) {
-      // Deliberately does not print the connection string (may hold
-      // credentials).
+    } 
+    catch (const std::exception &e) {
+      // Deliberately does not print the connection string (may hold credentials).
       std::println(stderr, "Failed to open database connection: {}", e.what());
       conn_.reset();
       this->started_ = false;
@@ -213,10 +210,7 @@ if (valCount_ && valCount_ != transactionArgs_.size()) {
     pqxx::params params;
     params.reserve(sizeof...(Args));
     (appendParamBorrowed(params, std::forward<Args>(args)), ...);
-    return run(DatabaseTx::Mode::Write, pqxx::zview{currentTransaction_},
-               params)
-               ? 0
-               : 1;
+    return run(DatabaseTx::Mode::Write, pqxx::zview{currentTransaction_}, params) ? 0 : 1;
   }
 
   // Zero-copy overload for null-terminated SQL (string literals, std::string,
@@ -255,8 +249,7 @@ if (valCount_ && valCount_ != transactionArgs_.size()) {
   }
 
 private:
-  static std::string
-  resolveConnectionString(const std::filesystem::path &file) {
+  static std::string resolveConnectionString(const std::filesystem::path &file) {
     using Expected = std::expected<std::string, std::string>;
     return bpql::loadCredentials(file)
         .and_then(bpql::validate)
@@ -340,8 +333,7 @@ private:
     }
   }
 
-  QueryResult run(DatabaseTx::Mode mode, pqxx::zview sql,
-                  const pqxx::params &params) {
+  QueryResult run(DatabaseTx::Mode mode, pqxx::zview sql, const pqxx::params &params) {
     std::lock_guard lock(connMutex_);
 
     if (!isConnected()) {
@@ -355,8 +347,7 @@ private:
       return std::unexpected{std::string{"No SQL to execute."}};
     }
 
-    const bool trackTx =
-        (this->bus_.template subscriberCount<DatabaseTx>() > 0);
+    const bool trackTx = (this->bus_.template subscriberCount<DatabaseTx>() > 0);
     std::uint64_t pgXid = 0;
     pqxx::result result;
 

@@ -26,12 +26,33 @@ public:
     using executor_type = TaskExecutor<ExecPolicy, ErrPolicy>;
     using active_task_type = typename executor_type::void_task_type;
 
-    explicit Component(DataBus& bus, std::string initParam = "")
-        : bus_(bus), initParam_(std::move(initParam)) {}
+    explicit Component(DataBus& bus,
+                       std::string componentName = "component",
+                       std::string initParam = "")
+        : bus_(bus)
+        , componentName_(std::move(componentName))
+        , initParam_(std::move(initParam)) {}
 
     [[nodiscard]] bool isStarted() const noexcept { return started_; }
+    [[nodiscard]] std::string_view name() const noexcept { return componentName_; }
 
 protected:
+    // --- Logging Helpers --------------------------------------------------
+    void log(LogEntry::Type level, std::string_view msg) const {
+        bus_.publish(LogEntry{
+            .type = level,
+            .source = componentName_,
+            .message = msg
+        });
+    }
+
+    template <typename... Args>
+    void logf(LogEntry::Type level, std::format_string<Args...> fmt, Args&&... args) const {
+        const auto formatted = std::format(fmt, std::forward<Args>(args)...);
+        log(level, formatted);
+    }
+
+    // --- Task Execution Helpers -------------------------------------------
     template <typename Function, typename... Args>
     [[nodiscard]] auto executeTask(Function&& function, Args&&... args) const {
         return taskExecutor_.run(
@@ -82,6 +103,7 @@ protected:
     }
 
     DataBus& bus_;
+    std::string componentName_;
     std::string initParam_;
     bool started_ = false;
 

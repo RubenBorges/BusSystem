@@ -41,8 +41,9 @@ struct LogEntry {
     };
 
     Type type{Type::None};
+    std::string_view source {"unknown"};
+    std::string_view message;
     std::chrono::time_point<std::chrono::system_clock> now;
-    std::string message;
 };
 
 struct NotifyEvent{
@@ -60,3 +61,8 @@ struct NotifyEvent{
     std::string message;
 };
 }
+struct InitFailEvent{
+    using EventTag = std::uint64_t;
+    EventTag eventIdTag;
+    std::string_view componentName{"unknown"};
+};

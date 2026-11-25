@@ -38,21 +38,25 @@ int main() {
 
         bus.publish(LogEntry{
             .type = LogEntry::Type::Sys,
-            .now = std::chrono::system_clock::now(),
-            .message = "Application bootstrap complete"
+            .source = "main",
+            .message = "Application bootstrap complete",
+            .now = std::chrono::system_clock::now()
         });
-              const std::string dsn = bpql::loadCredentials(std::filesystem::path{"conf/bql.conf"})
+
+            const std::string dsn = bpql::loadCredentials(std::filesystem::path{"conf/bql.conf"})
             .and_then(bpql::validate)
             .transform(bpql::toConnString)
             .value_or(std::string{DatabaseComponent<>::DefaultConnectionString});
 
         test::runAllFunctionalityTests(bus, dsn);
 
-        bus.publish(LogEntry{
+         bus.publish(LogEntry{
             .type = LogEntry::Type::Note,
-            .now = std::chrono::system_clock::now(),
-            .message = "Application shutdown sequence starting"
+            .source = "main",
+            .message = "Application shutdown sequence starting",
+            .now = std::chrono::system_clock::now()
         });
+
     } catch (const std::exception& ex) {
         std::println(std::cerr, "[main] Unhandled exception: {}", ex.what());
         if (notifierStarted) {
@@ -64,14 +68,8 @@ int main() {
         return 1;
     }
 
-    if (notifierStarted) {
-        notifier.stop();
-    }
-    if (loggerStarted) {
-        logger.stop();
-    }
-
-
+    if (notifierStarted) notifier.stop();
+    if (loggerStarted) logger.stop();
 
     return 0;
 }

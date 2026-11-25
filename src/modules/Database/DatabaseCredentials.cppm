@@ -14,8 +14,7 @@ struct DatabaseCredentials {
     std::string port;
 
     [[nodiscard]] std::string connection_string() const {
-        return std::format("dbname={} user={} password={} hostaddr={} port={}",
-                           dbname, user, password, hostaddr, port);
+        return std::format("dbname={} user={} password={} hostaddr={} port={}",dbname, user, password, hostaddr, port);
     }
 };
 }

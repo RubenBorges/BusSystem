@@ -118,8 +118,9 @@ void demonstrateBusEventsAndHealthRpc(DataBus &bus) {
     bus.publish(LogEntry{.type = (tx.status == DatabaseTx::Status::Fail)
                                      ? LogEntry::Type::Error
                                      : LogEntry::Type::Note,
-                         .now = now,
-                         .message = summary});
+                         .source = TxBridgeSubscription,
+                         .message = summary,
+                         .now = now});
 
     if (tx.status == DatabaseTx::Status::Fail) {
       bus.publish(NotifyEvent{
@@ -608,12 +609,14 @@ void demonstrateHybridBus(DataBus &mainBus) {
         window[sampleCount % WindowSize] = ev.celsius;
         ++sampleCount;
 
-        // Emit hot-path trace log (zero DataBus locking)
+         // Emit hot-path trace log (zero DataBus locking)
+        const auto msg = std::format("Sample #{}: {:.1f} C (avg={:.1f} C)",
+                                     sampleCount, ev.celsius, movingAverage());
         hybrid.publish(LogEntry{
             .type = LogEntry::Type::Note,
-            .now = std::chrono::system_clock::now(),
-            .message = std::format("Sample #{}: {:.1f} C (avg={:.1f} C)",
-                                   sampleCount, ev.celsius, movingAverage())});
+            .source = "hot-thermal-analyzer",
+            .message = msg,
+            .now = std::chrono::system_clock::now()});
 
         // Detect sudden >15 C jump or >85 C threshold breach
         if ((sampleCount > 1 && (ev.celsius - prevAvg) > 15.0f) ||
@@ -668,8 +671,7 @@ void demonstrateHybridBus(DataBus &mainBus) {
                sampleCount, spikeCount, suppressedDebugLogs, mainBusTempCount,
                remoteOpsTempCount);
 
-  // Thermal spike triggers incident mode -> dynamically promote
-  // TemperatureUpdated to mainBus & remoteOpsBus!
+  // Thermal spike triggers incident mode -> dynamically promote TemperatureUpdated to mainBus & remoteOpsBus!
   incidentMode = true;
   hybrid.promote<TemperatureUpdated>("incident-promoter");
 
