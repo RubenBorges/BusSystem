@@ -1,3 +1,10 @@
+/*
+*   DataBus: Dynamic Hub-and-Spoke (Runtime Type Erasure):
+*   
+*   DataBus acts as a central router that knows nothing about event types ahead of time. 
+*   Any component can dynamically register or query any event type at runtime across multiple threads.
+*/
+
 export module DataBus;
 
 import std;

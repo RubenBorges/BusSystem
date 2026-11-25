@@ -1,5 +1,4 @@
-find_package(websocketpp CONFIG REQUIRED)
-find_package(Boost CONFIG REQUIRED COMPONENTS system)
+find_package(Boost CONFIG REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
@@ -33,7 +32,9 @@ target_sources(DesignedSystem
         FILE_SET CXX_MODULES
         BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
         FILES
-            modules/Databus/DataBus.cppm
+            modules/Bus/DataBus.cppm
+            modules/Bus/EventChannel.cppm
+            modules/Bus/StaticEventBus.cppm
             modules/Events/EventType.cppm
             modules/Components/Components.cppm
             modules/Components/DatabaseComponent.cppm
@@ -44,21 +45,17 @@ target_sources(DesignedSystem
             modules/Policies/StoragePolicies.cppm
             modules/Policies/TaskPolicies.cppm
             modules/Policies/Policies.cppm
-            modules/MessageBus/MessageBus.cppm
-            modules/MessageBus/MultiMessageBus.cppm
             modules/Database/UtilitiesQL.cppm
             modules/Database/pqxx.cppm
             modules/Graph/Graph.cppm
 )
 
-
 target_link_libraries(DesignedSystem PRIVATE
-websocketpp::websocketpp
-Boost::system
-OpenSSL::SSL
-OpenSSL::Crypto
-Threads::Threads
-custom_pqxx
+    Boost::headers
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    Threads::Threads
+    custom_pqxx
 )
 
 target_include_directories(DesignedSystem PRIVATE

@@ -10,6 +10,9 @@ import NotifyingComponent;
 import TaskPolicies;
 import Pqxx;
 
+import StaticEventBus; // Automatically exports EventChannel, SubscriptionPolicies, StoragePolicies
+
+
 namespace {
 
 constexpr std::string_view DemoTable{"sensor_readings"};
@@ -450,6 +453,84 @@ NotifyEvent decodeNotifyEvent(std::span<const std::uint8_t> bytes) {
     bridgeA.stop();
 }
 
+// Example custom policy: limits a single MessageBus channel to at most MaxSubs subscribers
+template <std::size_t MaxSubs>
+struct BoundedSubscriptionPolicy : SubscriptionPolicy {
+    std::size_t active{0};
+
+    void subscribe(std::string_view identifier) {
+        if (active >= MaxSubs) {
+            throw std::length_error(
+                std::format("Channel full (max {}): rejected '{}'", MaxSubs, identifier));
+        }
+        ++active;
+    }
+
+    void unsubscribe(std::string_view) noexcept {
+        if (active > 0) {
+            --active;
+        }
+    }
+};
+void demonstratePolicyEventBuses(DataBus& mainBus) {
+    std::println("=== 5. Policy-Based EventChannel & StaticEventBus ===");
+
+    // 1. Single-type EventChannel with BoundedSubscriptionPolicy<1> and move-only state
+    EventChannel<TemperatureUpdated, VectorPolicy, BoundedSubscriptionPolicy<1>> exclusiveSensorChannel;
+
+    auto runningPeak = std::make_unique<float>(-273.15f);
+    exclusiveSensorChannel.subscribe("peak-tracker", [peak = std::move(runningPeak)](const TemperatureUpdated& ev) {
+        if (ev.celsius > *peak) {
+            *peak = ev.celsius;
+        }
+        std::println("[EventChannel] Sample {:.1f} C (session peak={:.1f} C)", ev.celsius, *peak);
+    });
+
+    try {
+        exclusiveSensorChannel.subscribe("intruder", [](const TemperatureUpdated&) {});
+    } catch (const std::length_error& ex) {
+        std::println("[EventChannel Policy] Rejected 2nd subscriber: {}", ex.what());
+    }
+
+    exclusiveSensorChannel.publish(TemperatureUpdated{.celsius = 21.5f});
+    exclusiveSensorChannel.publish(TemperatureUpdated{.celsius = 24.8f});
+    exclusiveSensorChannel.unsubscribe("peak-tracker");
+
+    // 2. Compile-time StaticEventBus for lock-free local telemetry aggregation
+    StaticEventBus<TemperatureUpdated, NotifyEvent> fastLocalBus;
+    std::println("Size of StaticEventBus<2 types>: {} bytes", sizeof(fastLocalBus));
+
+    float sumCelsius = 0.0f;
+    std::size_t sampleCount = 0;
+
+    fastLocalBus.subscribe<TemperatureUpdated>("local-aggregator", [&](const TemperatureUpdated& ev) {
+        sumCelsius += ev.celsius;
+        ++sampleCount;
+    });
+
+    fastLocalBus.subscribe<NotifyEvent>("local-forwarder", [&](const NotifyEvent& ev) {
+        // Forward aggregated milestone onto the thread-safe global DataBus
+        mainBus.publish(ev);
+    });
+
+    for (float reading : {20.0f, 22.0f, 24.0f}) {
+        fastLocalBus.publish(TemperatureUpdated{.celsius = reading});
+    }
+
+    if (sampleCount > 0) {
+        const float avg = sumCelsius / static_cast<float>(sampleCount);
+        fastLocalBus.publish(NotifyEvent{
+            .type = NotifyEvent::Type::Note,
+            .now = std::chrono::system_clock::now(),
+            .message = std::format("StaticEventBus aggregated {} samples (avg={:.1f} C)", sampleCount, avg)
+        });
+    }
+
+    fastLocalBus.unsubscribe<TemperatureUpdated>("local-aggregator");
+    fastLocalBus.unsubscribe<NotifyEvent>("local-forwarder");
+}
+
+
 } // namespace
 
 int main() {
@@ -507,7 +588,10 @@ int main() {
     }
 
     std::println("Beginning GraphNodeComponent Demo!");
-
     demonstrateGraphBridge();
+
+    std::println("Beginning EventChannelBus Demo!");
+    demonstratePolicyEventBuses(bus); // <-- Add this call
+
     return 0;
 }
