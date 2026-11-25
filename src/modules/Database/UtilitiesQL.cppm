@@ -6,16 +6,16 @@ module;
 #include <sys/stat.h>
 #include <unistd.h>
 
-export module UtilitiesQL;
 
 import std;
 export import EventType;
 export import Pqxx;
 export import DatabaseCredentials;
 
-namespace bpql {
+export module UtilitiesQL;
+export namespace pgql {
 
-export inline bool table_exists(pqxx::transaction_base& txn,
+ inline bool table_exists(pqxx::transaction_base& txn,
                                 std::string_view table_name) {
     pqxx::params p;
     p.append(table_name);
@@ -24,7 +24,7 @@ export inline bool table_exists(pqxx::transaction_base& txn,
     return r.one_field().as<bool>();
 }
 
-export [[nodiscard]] inline std::expected<DatabaseCredentials, std::string>
+[[nodiscard]] inline std::expected<credentials::DatabaseCredentials, std::string>
 loadCredentials(const std::filesystem::path& fpath) {
     const int rawFd = ::open(fpath.c_str(), O_RDONLY | O_CLOEXEC);
     if (rawFd < 0) {
@@ -92,7 +92,7 @@ loadCredentials(const std::filesystem::path& fpath) {
         return std::unexpected("Credentials file is incomplete (expected 5 lines)");
     }
 
-    return DatabaseCredentials{
+    return credentials::DatabaseCredentials{
         .dbname   = std::string{lines[0]},
         .user     = std::string{lines[1]},
         .password = std::string{lines[2]},
@@ -101,31 +101,31 @@ loadCredentials(const std::filesystem::path& fpath) {
     };
 }
 
-export [[nodiscard]] constexpr std::expected<DatabaseCredentials, std::string>
-validate(DatabaseCredentials c) {
+ [[nodiscard]] constexpr std::expected<credentials::DatabaseCredentials, std::string>
+validate(credentials::DatabaseCredentials c) {
     if (c.dbname.empty() || c.user.empty()) {
         return std::unexpected("Database name and user cannot be empty");
     }
     return c;
 }
 
-export [[nodiscard]] inline std::string toConnString(const DatabaseCredentials& c) {
+ [[nodiscard]] inline std::string toConnString(const credentials::DatabaseCredentials& c) {
     return c.connection_string();
 }
 
-export constexpr bool isIdentifierStart(char value) noexcept {
+ constexpr bool isIdentifierStart(char value) noexcept {
     return (value >= 'a' && value <= 'z') ||
            (value >= 'A' && value <= 'Z') ||
            value == '_';
 }
 
-export constexpr bool isIdentifierPart(char value) noexcept {
+ constexpr bool isIdentifierPart(char value) noexcept {
     return isIdentifierStart(value) ||
            (value >= '0' && value <= '9') ||
            value == '$';
 }
 
-export constexpr bool isSqlIdentifier(std::string_view value, bool allowSchema) noexcept {
+ constexpr bool isSqlIdentifier(std::string_view value, bool allowSchema) noexcept {
     bool segmentStart = true;
     for (char character : value) {
         if (allowSchema && character == '.') {
@@ -143,7 +143,7 @@ export constexpr bool isSqlIdentifier(std::string_view value, bool allowSchema) 
     return !segmentStart;
 }
 
-export constexpr std::string_view statusName(DatabaseTx::Status status) noexcept {
+ constexpr std::string_view statusName(DatabaseTx::Status status) noexcept {
     switch (status) {
     case DatabaseTx::Status::Waiting: return "waiting";
     case DatabaseTx::Status::Fail:    return "failed";
@@ -152,4 +152,4 @@ export constexpr std::string_view statusName(DatabaseTx::Status status) noexcept
     return "unknown";
 }
 
-} // namespace bpql
+} // namespace pgql

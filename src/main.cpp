@@ -43,9 +43,9 @@ int main() {
             .now = std::chrono::system_clock::now()
         });
 
-            const std::string dsn = bpql::loadCredentials(std::filesystem::path{"conf/bql.conf"})
-            .and_then(bpql::validate)
-            .transform(bpql::toConnString)
+            const std::string dsn = pgql::loadCredentials(std::filesystem::path{"conf/bql.conf"})
+            .and_then(pgql::validate)
+            .transform(pgql::toConnString)
             .value_or(std::string{DatabaseComponent<>::DefaultConnectionString});
 
         test::runAllFunctionalityTests(bus, dsn);

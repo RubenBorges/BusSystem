@@ -2,31 +2,43 @@
     "version": 6,
     "configurePresets": [
         {
-            "name": "linux-dev",
+            "name": "base",
+            "hidden": true,
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build/linux-dev",
+            "environment": {
+                "MY_PROJECT_NAME": "distributedBusSystem"
+            },
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_CXX_STANDARD": "26",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/dist"
+                "MY_PROJECT_NAME": "$env{MY_PROJECT_NAME}"
             }
         },
         {
-            "name": "ninja-debug",
-            "displayName": "Linux Debug (Ninja)",
-            "description": "Debug build using Ninja in the out directory.",
-            "generator": "Ninja",
-            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "name": "linux-dev",
+            "inherits": "base",
+            "binaryDir": "${sourceDir}/.build/linux-dev",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+                "CMAKE_CXX_STANDARD": "26",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/$env{MY_PROJECT_NAME}"
+            }
+        },
+        {
+            "name": "linux-release",
+            "displayName": "Linux Release",
+            "description": "Release build using Ninja in the build directory.",
+            "inherits": "base",
+            "binaryDir": "${sourceDir}/.build/linux-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_STANDARD": "26",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/$env{MY_PROJECT_NAME}"
             }
         },
         {
             "name": "msvc-wine",
             "displayName": "Windows x64 (msvc-wine)",
-            "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build/msvc-wine",
+            "inherits": "base",
+            "binaryDir": "${sourceDir}/.build/msvc-wine",
             "environment": {
                 "PATH": "/opt/msvc/bin/x64:$penv{PATH}",
                 "CC": "cl",
@@ -37,10 +49,9 @@
                 "CMAKE_SYSTEM_NAME": "Windows",
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_CXX_STANDARD": "23",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/dist-win"
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/$env{MY_PROJECT_NAME}-win"
             }
         }
-
     ],
     "buildPresets": [
         {
@@ -50,6 +61,17 @@
         {
             "name": "dev-install",
             "configurePreset": "linux-dev",
+            "targets": [
+                "install"
+            ]
+        },
+        {
+            "name": "release-build",
+            "configurePreset": "linux-release"
+        },
+        {
+            "name": "release-install",
+            "configurePreset": "linux-release",
             "targets": [
                 "install"
             ]
@@ -81,6 +103,23 @@
                 {
                     "type": "build",
                     "name": "dev-install"
+                }
+            ]
+        },
+        {
+            "name": "release",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "linux-release"
+                },
+                {
+                    "type": "build",
+                    "name": "release-build"
+                },
+                {
+                    "type": "build",
+                    "name": "release-install"
                 }
             ]
         },

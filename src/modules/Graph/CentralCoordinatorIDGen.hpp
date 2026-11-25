@@ -1,3 +1,4 @@
-export module Graph:CentralCoordinatorIDGenHeader;
+module;
+export module Graph;CentralCoordinatorIDGenHeader;
 
 export import :CentralCoordinatorIDGen;

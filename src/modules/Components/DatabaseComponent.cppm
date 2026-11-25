@@ -117,7 +117,7 @@ public:
                    "Table name must be set before building a transaction.");
       return;
     }
-    if (!bpql::isSqlIdentifier(tableName_, /*allowSchema=*/true)) {
+    if (!pgql::isSqlIdentifier(tableName_, /*allowSchema=*/true)) {
       std::println(stderr, "Invalid table name '{}'.", tableName_);
       return;
     }
@@ -126,7 +126,7 @@ public:
       return;
     }
     for (const auto &column : transactionArgs_) {
-      if (!bpql::isSqlIdentifier(column, /*allowSchema=*/false)) {
+      if (!pgql::isSqlIdentifier(column, /*allowSchema=*/false)) {
         std::println(stderr, "Invalid column name '{}'.", column);
         return;
       }
@@ -251,15 +251,15 @@ if (valCount_ && valCount_ != transactionArgs_.size()) {
 private:
   static std::string resolveConnectionString(const std::filesystem::path &file) {
     using Expected = std::expected<std::string, std::string>;
-    return bpql::loadCredentials(file)
-        .and_then(bpql::validate)
-        .transform(bpql::toConnString)
+    return pgql::loadCredentials(file)
+        .and_then(pgql::validate)
+        .transform(pgql::toConnString)
         .or_else([](const std::string &err) -> Expected {
           std::println(stderr, "Primary config failed ({}), trying fallback...",
                        err);
-          return bpql::loadCredentials("fallback_creds.txt")
-              .and_then(bpql::validate)
-              .transform(bpql::toConnString);
+          return pgql::loadCredentials("fallback_creds.txt")
+              .and_then(pgql::validate)
+              .transform(pgql::toConnString);
         })
         .or_else([](const std::string &err) -> Expected {
           std::println(

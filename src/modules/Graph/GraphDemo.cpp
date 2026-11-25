@@ -1,7 +1,12 @@
+module;
+
 #include <sys/socket.h>
 
-import std;
+export module GraphDemo;
+
 import Graph;
+
+import std;
 
 namespace {
 

@@ -2,7 +2,7 @@ module;
 
 #include <arpa/inet.h>
 #include <cstring>
-
+#include <cstdint>
 module Graph;
 import std;
 

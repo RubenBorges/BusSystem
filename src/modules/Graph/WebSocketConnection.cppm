@@ -7,7 +7,7 @@ module;
 export module Graph:WebSocketConnection;
 
 import std;
-import :Wire;
+import Graph:Wire;
 
 export class Process;
 

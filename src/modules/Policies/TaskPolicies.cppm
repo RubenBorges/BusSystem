@@ -1,4 +1,4 @@
-moduel;
+module;
 
 import std;
 import Graph;

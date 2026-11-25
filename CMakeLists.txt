@@ -6,9 +6,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_MODULE_STD ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-project(DesignedSystem LANGUAGES CXX)
+project(distributedBusSystem LANGUAGES CXX)
 
 add_subdirectory(src)
 
-install(TARGETS DesignedSystem DESTINATION .)
-install (FILES "conf/bql.conf" DESTINATION .)
+install(TARGETS distributedBusSystem DESTINATION .)
+install (FILES 
+    "conf/bql.conf" 
+    "conf/rdvk.conf"
+    DESTINATION .
+)
