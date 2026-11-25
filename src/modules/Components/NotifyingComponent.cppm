@@ -26,7 +26,7 @@ public:
         char idBuf[48];
         const std::string_view subId = formatSubId(idBuf);
 
-        bus_.subscribe<NotifyEvent>(
+       bus_.subscribe<NotifyEvent>(
             subId,
             [this](const NotifyEvent& event) { notify(event); });
 

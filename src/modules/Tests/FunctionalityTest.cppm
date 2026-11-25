@@ -103,13 +103,13 @@ void demonstrateBusEventsAndHealthRpc(DataBus &bus) {
   std::println("=== 2. DataBus Pub/Sub & Request/Response ===");
 
   std::atomic<float> latestCelsius{0.0f};
-  bus.subscribe<TemperatureUpdated>(
+bus.subscribe<TemperatureUpdated>(
       TempCaptureSubscription,
       [&latestCelsius](const TemperatureUpdated &event) {
         latestCelsius.store(event.celsius, std::memory_order_release);
       });
 
-  bus.subscribe<DatabaseTx>(TxBridgeSubscription, [&bus](const DatabaseTx &tx) {
+bus.subscribe<DatabaseTx>(TxBridgeSubscription, [&bus](const DatabaseTx &tx) {
     const auto now = std::chrono::system_clock::now();
     const std::string summary =
         std::format("DB {} {} (xid={})", txModeLabel(tx.mode),
@@ -140,7 +140,7 @@ void demonstrateBusEventsAndHealthRpc(DataBus &bus) {
         }
       });
 
-  bus.subscribe<TemperatureUpdated>(
+bus.subscribe<TemperatureUpdated>(
       "flaky-listener", [](const TemperatureUpdated &) {
         throw std::logic_error("simulated listener error");
       });
@@ -412,9 +412,9 @@ void demonstrateGraphBridge() {
   std::size_t totalPublishesOnA{0};
   std::size_t totalPublishesOnB{0};
 
-  systemABus.subscribe<NotifyEvent>(
+   systemABus.subscribe<NotifyEvent>(
       "system-a-counter", [&](const NotifyEvent &) { ++totalPublishesOnA; });
-  systemBBus.subscribe<NotifyEvent>(
+systemBBus.subscribe<NotifyEvent>(
       "system-b-counter", [&](const NotifyEvent &) { ++totalPublishesOnB; });
 
   systemBBus.subscribe<NotifyEvent>(
@@ -434,7 +434,7 @@ void demonstrateGraphBridge() {
         }
       });
 
-  systemABus.subscribe<NotifyEvent>(
+ systemABus.subscribe<NotifyEvent>(
       "system-a-listener", [&](const NotifyEvent &ev) {
         if (ev.message.starts_with("[From A]")) {
           return;
